@@ -10,9 +10,7 @@
 
 //Libraries
 #include <ESP8266WiFi.h>//https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WiFi/src/ESP8266WiFi.h
-//Constants
-#define LED 2
-//Parameters
+
 String request;
 String nom = "ESP8266";
 //Objects
@@ -45,6 +43,7 @@ void webpage(WiFiClient client) { /* function webpage */
   client.println("<!DOCTYPE HTML>");
   client.println("<html>");
   client.println("<head>");
+  client.println("<meta charset=\"utf-8\"/>");
   //  client.println("<meta name='apple-mobile-web-app-capable' content='yes' />");
   //  client.println("<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />");
   client.println("</head>");

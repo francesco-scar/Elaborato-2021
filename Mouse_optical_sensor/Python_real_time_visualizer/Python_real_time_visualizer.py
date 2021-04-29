@@ -64,7 +64,7 @@ def updater():
     sensor_pixels = arduino.readline()[:-2]     # Remove \r\n
 #    print(sensor_pixels)
     for i in range(SIZE**2):
-        pixels[i]['background']='#'+('%02x'%(round((sensor_pixels[i] & 0b00111111)/(2**6-1)*(2**8))))*3
+        pixels[i]['background']='#'+('%02x'%(round((sensor_pixels[i] & 0b00111111)/(2**6-1)*(2**8-1))))*3
     arduino.write('R'.encode())
     pixels_grid.after(UPDATE_RATE, updater)
         

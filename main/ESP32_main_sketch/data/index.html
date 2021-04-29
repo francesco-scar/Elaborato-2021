@@ -64,7 +64,11 @@
                 <button id="frame_button" onclick="call_ajax_once()">Frame</button>
                 <button id="loop_button" onclick="toggle_loop()">Loop</button>
                 <button id="start_button" onclick="toggle_demo()">Start</button>
-                <table style="width: 150px">
+                <table style="width: auto; text-align: left;">
+                  <colgroup>
+                    <col span="1" style="width: 15%;">
+                    <col span="1" style="width: 85%;">
+                  </colgroup>
                   <tr>
                     <td>
                       <input type="checkbox" id="display_center" name="display_center" onchange="draw_center_axis()">
@@ -79,6 +83,14 @@
                     </td>
                     <td>
                       <label for="display_polar">Polar grid</label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="checkbox" id="display_threshold" name="display_threshold" onchange="display_threshold()">
+                    </td>
+                    <td>
+                      <label for="display_threshold">Threshold: </label><label id="threshold_label">1</label> <input type="range" min="0" max="63" value="1" class="slider" id="threshold_slider" oninput="display_threshold()" disabled>
                     </td>
                   </tr>
                 </table>

@@ -62,8 +62,20 @@ tr {
   transition: opacity .2s;
 }
 
-.slider:hover {
+.slider:hover:active {
   opacity: 1;
+}
+
+.slider:disabled {
+  background: #e3e3e3;
+  opacity: 0.3;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover:disabled {
+  cursor: not-allowed;
+  background: #e3e3e3;
 }
 
 .slider::-webkit-slider-thumb {
@@ -75,6 +87,11 @@ tr {
   cursor: pointer;
 }
 
+.slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
 .slider::-moz-range-thumb {
   width: 25px;
   height: 25px;
@@ -82,6 +99,10 @@ tr {
   cursor: pointer;
 }
 
+.slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
 
 
 

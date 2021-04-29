@@ -55,7 +55,8 @@ function draw_center_axis () {
 
 function call_ajax() {
   ajax('/getImageMatrix?scanAfter=1', (e) => {
-    last_matrix = JSON.parse(e.responseText);
+    let json_response = JSON.parse(e.responseText);
+    last_matrix = json_response.matrix
     draw_pixels(last_matrix);
     last_timeout = setTimeout(call_ajax, 1500);
   });
@@ -63,7 +64,8 @@ function call_ajax() {
 
 function call_ajax_once() {
   ajax('/getImageMatrix?scanAfter=1', (e) => {
-    last_matrix = JSON.parse(e.responseText);
+    let json_response = JSON.parse(e.responseText);
+    last_matrix = json_response.matrix;
     draw_pixels(last_matrix);
   });
 }
@@ -102,7 +104,32 @@ function toggle_demo() {
     document.getElementById("loop_button").disabled = true;
     document.getElementById("start_button").className = 'button_red';
     document.getElementById("start_button").innerText = 'Stop';
-    call_ajax();
+//    call_ajax();
+    // TODO
+  }
+}
+
+
+function display_threshold () {
+  let label = document.getElementById('threshold_label');
+  let slider = document.getElementById('threshold_slider');
+  let checkbox = document.getElementById('display_threshold');
+  
+  if (checkbox.checked) {
+    slider.disabled = false;
+    label.innerText = slider.value;
+    let threshold_array = new Array(N_PIXELS**2);
+    for (let i = 0; i < N_PIXELS**2; i++) {
+      if ((last_matrix[i] & 0b00111111) >= slider.value) {
+        threshold_array[i] = 63;
+      } else {
+        threshold_array[i] = 0;
+      }
+    }
+    draw_pixels(threshold_array);
+  } else {
+    slider.disabled = true;
+    draw_pixels(last_matrix);
   }
 }
 

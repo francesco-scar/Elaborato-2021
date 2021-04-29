@@ -83,9 +83,6 @@ void setup() {
 }
 
 void loop() {
-  
-  Serial.println('-');
   server.handleClient();
   delay(200);
-  Serial.println('.');
 }

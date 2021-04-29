@@ -73,7 +73,7 @@ void imageMatrixRequest () {
       output += ",";
     }
   }
-  server.send(200, "text/plain", "[" + output + "]");
+  server.send(200, "text/plain", "{\"matrix\":[" + output + "]}");
   if (server.hasArg("scanAfter")){
     getImageMatrix();
   }

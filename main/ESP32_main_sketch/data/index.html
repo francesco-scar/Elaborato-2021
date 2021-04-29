@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>Solar Cooker Control</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body style="text-align: center">
+    <div id="demo">
+      <div>
+        <table style="width: 100%; height: auto">
+          <tbody>
+            <tr>
+              <td style="width: 50%; height: auto">
+                <canvas id="canvas_motor" width="630" height="630" style="border:1px solid #ccc;">
+                Your browser does not support the canvas element.
+                </canvas>
+              </td>
+              <td style="width: 50%; height: auto">
+                <table style="margin: auto">
+                  <tbody>
+                    <tr>
+                      <td></td>
+                      <td><i class="arrow up" onclick="move_stepper('up')"></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td><i class="arrow left" onclick="move_stepper('left')"></td>
+                      <td></td>
+                      <td><i class="arrow right" onclick="move_stepper('right')"></td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td><i class="arrow down" onclick="move_stepper('down')"></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <br>
+                &nbsp;
+                <br>
+                <button id="toggle_enable_button" onclick="toggle_enable()" class="button_red">Disable Motors</button>
+                <br>
+                &nbsp;
+                <br>
+                Steps: <label id="steps_label">100</label> <input type="range" min="1" max="4000" value="100" class="slider" id="steps_slider">
+                Speed: <label id="speed_label">500</label> <input type="range" min="1" max="1000" value="500" class="slider" id="speed_slider">
+                Acceleration: <label id="acceleration_label">200</label> <input type="range" min="1" max="1000" value="200" class="slider" id="acceleration_slider">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table style="width: 100%; height: auto">
+          <tbody>
+            <tr>
+              <td style="width: 50%; height: auto">
+                <canvas id="canvas_image" width="630" height="630" style="border:1px solid #ccc;">
+                Your browser does not support the canvas element.
+                </canvas>
+              </td>
+              <td style="width: 50%; height: auto">
+                <button id="frame_button" onclick="call_ajax_once()">Frame</button>
+                <button id="loop_button" onclick="toggle_loop()">Loop</button>
+                <button id="start_button" onclick="toggle_demo()">Start</button>
+                <table style="width: 150px">
+                  <tr>
+                    <td>
+                      <input type="checkbox" id="display_center" name="display_center" onchange="draw_center_axis()">
+                    </td>
+                    <td>
+                      <label for="display_center">Center</label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="checkbox" id="display_polar" name="display_polar" onchange="draw_polar_axis()">
+                    </td>
+                    <td>
+                      <label for="display_polar">Polar grid</label>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <script type="text/javascript" src="general_functions.js"></script>
+    <script type="text/javascript" src="optical_sensor.js"></script>
+    <script type="text/javascript" src="motors_control.js"></script>
+  </body>
+</html>

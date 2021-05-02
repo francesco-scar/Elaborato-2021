@@ -16,7 +16,10 @@ function ajax (url_request, callback) {
 }
 
 
-function drawLine(ctx, startX, startY, endX, endY, color, lineWidth = 1){
+function drawLine(ctx, startX, startY, endX, endY, color, lineWidth = 1, dash=[]) {
+  if (dash) {
+    ctx.setLineDash(dash)
+  }
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
   ctx.beginPath();
@@ -38,4 +41,9 @@ function drawCircle(ctx, x, y, radius, fill, stroke, strokeWidth, lineWidth = 1)
     ctx.strokeStyle = stroke
     ctx.stroke()
   }
+}
+
+function drawText(ctx, text, size, x, y) {
+  ctx.font = size + "px Arial";
+  ctx.fillText(text, x, y);
 }

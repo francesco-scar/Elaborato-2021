@@ -63,18 +63,32 @@ bool handleFileRead(String path) {
 
 
 void imageMatrixRequest () {
-  if (server.hasArg("scanBefore")){
+  if (server.hasArg("scanBefore")) {
     getImageMatrix();
   }
-  String output = "";
+  String output_matrix = "";
   for (uint16_t i = 0; i < 18 * 18; i++) {
-    output += String(matrix[i/18][i%18]);
+    output_matrix += String(matrix[i / 18][i % 18]);
     if (i != 18 * 18 - 1) {
-      output += ",";
+      output_matrix += ",";
     }
   }
-  server.send(200, "text/plain", "{\"matrix\":[" + output + "]}");
-  if (server.hasArg("scanAfter")){
+  clear_matrix_val();
+  uint8_t threshold = circle_border();
+  String output_border = "";
+  if (threshold != 255) {
+    for (uint16_t i = 0; i < 16 * 16 && border_coord[i][0] != 255; i++) {
+      if (i != 0) {
+        output_border += ",";
+      }
+      output_border += String(border_coord[i][0] * 18 + border_coord[i][1]);
+    }
+  } else {
+    output_border = "255";
+  }
+
+  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"threshold\":" + threshold + ", \"border\":[" + output_border + "]}");
+  if (server.hasArg("scanAfter")) {
     getImageMatrix();
   }
 }

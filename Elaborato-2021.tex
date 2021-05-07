@@ -30,6 +30,7 @@
     \usepackage{listings}    
     \usepackage{etoolbox}    
     \usepackage{hyperref}
+    \usepackage{amsmath}
     
     \definecolor{mygreen}{rgb}{0,0.6,0}
     \definecolor{mygray}{rgb}{0.47,0.47,0.33}
@@ -134,6 +135,7 @@
 ]{}
 */
 
+
 \vspace{0.5cm}
 \noindent
 
@@ -202,10 +204,63 @@
 \vspace{1cm}
 
 \section{Algoritmo}
-    Considerate le lente variazioni di temperatura nel sistema si può con\-si\-de\-ra\-re accettabile un campionamento ogni 30 secondi e si considera il tempo necessario alle aperture per percorrere l'intera escursione utile strettamente inferiore a questo tempo.
-    \subsection{Diagramma di flusso}
+    \subsection{Diagramma di flusso generale}
 
-    
+    \subsection{Analisi funzioni principali}
+        \subsubsection{Controllo accelerazione motori}
+        \subsubsection{Calcolo gradiente}
+        
+        
+        \subsubsection{Discesa del gradiente}
+        Per ottenere il centro dell'immagine del sole, che approssimiamo ad un cerchio, è sufficiente trovare la circonferenza che meglio approssima il contorno esterno del cerchio, definito dai punti con maggiore modulo del gradiente, ovvero in cui si ha una differenza netta tra pixels successivi. \\
+        A tal fine si deve minimizzare la distanza geometrica tra la circonferenza e i punti con magiore modulo del gradiente; tale distanza è schematizzata nella seguente figura con il tratto $ e $.
+        
+        \begin{center}
+        \includegraphics[
+            page=1,
+            width=220pt,
+            height=\textheight,
+            keepaspectratio
+        ]{Draws/Discesa_del_gradiente_cerchio-punto.pdf}
+        \end{center}
+        
+        \noindent
+        Applicando il teorema di pitagora, per differenza, si ottiene che la distanza $ e $ è definita in funzione delle coordinate del centro e del punto in questione, secondo la relazione
+        \begin{equation}
+             e = \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right|
+        \end{equation}
+        
+        \noindent
+        Possiamo quindi definire la seguente funzione
+        \begin{equation}
+            f(x, y, r) = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ g(x_p, y_p) \cdot \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right| \right] 
+        \end{equation}
+        
+        \noindent
+        in cui la funzione $ g(x_p, y_p) $ rappresenta il modulo del gradiente dell'immagine del punto $ (x_p, y_p) $, ed è quindi un coefficiente reale. Tale sommatoria risulta quindi una somma ponderata delle distanze tra la circonferenza in considerazione e tutti i punti della matrice discussa alla sezione precedente. Il modulo del gradiente sarà maggiore per i punti sul contorno dell'immagine del sole, che quindi avranno un peso maggiore rispetto agli altri punti.\\
+        Calcoliamo quindi le derivate parziali di $ f(x, y, r) $ rispetto alle tre variabili
+        
+        \begin {equation}
+            \frac{\partial f}{\partial x} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ g(x_p, y_p) \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{x - x_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
+        \end {equation}
+        \begin {equation}
+            \frac{\partial f}{\partial y} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ g(x_p, y_p) \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{y - y_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
+        \end {equation}
+        \begin {equation}
+            \frac{\partial f}{\partial r} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ - g(x_p, y_p) \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \right] 
+        \end {equation}
+        
+        \noindent
+        con $ sgn(x)$ definita a tratti nel dominio $(- \infty ; 0) \cup (0; +\infty) $ :
+        
+        \begin {equation}
+            sgn(x) = 
+                \begin{cases}
+                  -1 & \text{se x < 0} \\
+                  1 & \text{se x > 0}
+                \end{cases}
+        \end {equation}
+        
     \subsection{Esempio di implementazione}
 
 \/*

@@ -1,5 +1,0 @@
-Smistamento posta/pacchi con AI e riconoscimento scrittura
-Lettore CD x musica
-Arcade/videogioco con scheda grafica
-Editor di testo da cd e videogioco con scheda vga
-orientamento specchi forno solare

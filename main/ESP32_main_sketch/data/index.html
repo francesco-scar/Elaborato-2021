@@ -93,6 +93,14 @@
                       <label for="display_gradient">Gradient threshold: </label><label id="gradient_label">0</label> <input type="range" min="0" max="90" value="0" class="slider" id="gradient_slider" oninput="display_gradient_or_image()" disabled>
                     </td>
                   </tr>
+                  <tr>
+                    <td>
+                      <input type="checkbox" id="display_sun_center" name="display_sun_center" onchange="display_sun_center()">
+                    </td>
+                    <td>
+                      <label for="display_sun_center">Gradient threshold: </label><label id="sun_center_label">0</label> <input type="range" min="0" max="255" value="0" class="slider" id="sun_center_slider" oninput="display_sun_center()" disabled>
+                    </td>
+                  </tr>
                 </table>
               </td>
             </tr>

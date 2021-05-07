@@ -1,6 +1,7 @@
 const N_PIXELS = 18;
 let last_matrix = new Array(18*18); last_matrix.fill(0);
 let last_gradient = new Array(16*16); last_gradient.fill(0);
+let progressive_approximations = new Array(256); progressive_approximations.fill([255, 255, 255]);
 
 let coefficient = 100;
 let steps = 10;
@@ -59,6 +60,7 @@ function call_ajax() {
     let json_response = JSON.parse(e.responseText);
     last_matrix = json_response.matrix;
     last_gradient = json_response.gradient;
+    progressive_approximations = json_response.progressive_approximations;
     display_gradient_or_image();
     last_timeout = setTimeout(call_ajax, 1500);
   });
@@ -69,6 +71,7 @@ function call_ajax_once() {
     let json_response = JSON.parse(e.responseText);
     last_matrix = json_response.matrix;
     last_gradient = json_response.gradient;
+    progressive_approximations = json_response.progressive_approximations;
     display_gradient_or_image();
   });
 }
@@ -138,6 +141,24 @@ function display_gradient_or_image () {
   } else {
     slider.disabled = true;
     draw_pixels(last_matrix);
+  }
+}
+
+
+function display_sun_center() {
+  display_gradient_or_image();
+  let slider = document.getElementById('sun_center_slider');
+  if (document.getElementById('display_sun_center').checked) {
+    slider.disabled = false;
+    let slider_val = slider.value;
+    document.getElementById('sun_center_label').innerText = slider_val;
+    let canvas = document.getElementById("canvas_image");
+    let ctx = canvas.getContext("2d");
+    let pixel_size = canvas.width/N_PIXELS/2;       // Assuming it's a square
+    drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, progressive_approximations[3*slider_val+2]*pixel_size, '', '#00ff00', 3);
+    drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, 10, '#00ff00', '#00ff00', 3);
+  } else {
+    slider.disabled = true;
   }
 }
 

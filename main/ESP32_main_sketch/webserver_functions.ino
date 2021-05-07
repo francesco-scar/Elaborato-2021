@@ -84,7 +84,17 @@ void imageMatrixRequest () {
     }
   }
 
-  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"valid_image\":" + valid_image + ", \"gradient\":[" + output_gradient + "]}");
+  String output_progressive = "";
+  for (uint16_t i = 0; i < 256*3; i++) {
+    output_progressive += String(progressive_approximations[i]);
+    if (i != 256*3-1) {
+      output_progressive += ",";
+    }
+  }
+
+  gradient_descent(7, 7, 7, 8);
+
+  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"valid_image\":" + valid_image + ", \"gradient\":[" + output_gradient + "], \"progressive_approximations\":[" + output_progressive + "]}");
   if (server.hasArg("scanAfter")) {
     getImageMatrix();
   }

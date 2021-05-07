@@ -87,10 +87,10 @@
                   </tr>
                   <tr>
                     <td>
-                      <input type="checkbox" id="display_threshold" name="display_threshold" onchange="display_threshold()">
+                      <input type="checkbox" id="display_gradient" name="display_gradient" onchange="display_gradient_or_image()">
                     </td>
                     <td>
-                      <label for="display_threshold">Threshold: </label><label id="threshold_label">1</label> <input type="range" min="0" max="63" value="1" class="slider" id="threshold_slider" oninput="display_threshold()" disabled>
+                      <label for="display_gradient">Gradient threshold: </label><label id="gradient_label">0</label> <input type="range" min="0" max="90" value="0" class="slider" id="gradient_slider" oninput="display_gradient_or_image()" disabled>
                     </td>
                   </tr>
                 </table>

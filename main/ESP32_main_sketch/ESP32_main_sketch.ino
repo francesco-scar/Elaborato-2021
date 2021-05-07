@@ -21,7 +21,6 @@
 // Set web server port number to 80
 WebServer server(80);
 
-uint8_t matrix[18][18];
 
 uint32_t last_t = 0;
 

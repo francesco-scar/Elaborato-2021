@@ -74,20 +74,17 @@ void imageMatrixRequest () {
     }
   }
   clear_matrix_val();
-  uint8_t threshold = circle_border();
-  String output_border = "";
-  if (threshold != 255) {
-    for (uint16_t i = 0; i < 16 * 16 && border_coord[i][0] != 255; i++) {
-      if (i != 0) {
-        output_border += ",";
-      }
-      output_border += String(border_coord[i][0] * 18 + border_coord[i][1]);
+  bool valid_image = circle_border();
+
+  String output_gradient = "";
+  for (uint16_t i = 0; i < 16 * 16; i++) {
+    output_gradient += String(gradient_modules[i / 16][i % 16] * valid_image);
+    if (i != 16 * 16 - 1) {
+      output_gradient += ",";
     }
-  } else {
-    output_border = "255";
   }
 
-  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"threshold\":" + threshold + ", \"border\":[" + output_border + "]}");
+  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"valid_image\":" + valid_image + ", \"gradient\":[" + output_gradient + "]}");
   if (server.hasArg("scanAfter")) {
     getImageMatrix();
   }

@@ -1,5 +1,6 @@
 const N_PIXELS = 18;
 let last_matrix = new Array(18*18); last_matrix.fill(0);
+let last_gradient = new Array(16*16); last_gradient.fill(0);
 
 let coefficient = 100;
 let steps = 10;
@@ -16,7 +17,7 @@ function draw_pixels (matrix) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < N_PIXELS*N_PIXELS; i++) {
     ctx.fillStyle = '#'+(('0'+Math.round((matrix[i]&0b111111)/(2**6-1)*(2**8-1)).toString(16)).slice(-2)).repeat(3);
-  	ctx.fillRect(pixel_size*(i%N_PIXELS)+pixel_size*N_PIXELS/2, pixel_size*Math.floor(i/N_PIXELS)+pixel_size*N_PIXELS/2, pixel_size-1, pixel_size-1);
+    ctx.fillRect(pixel_size*(i%N_PIXELS)+pixel_size*N_PIXELS/2, pixel_size*Math.floor(i/N_PIXELS)+pixel_size*N_PIXELS/2, pixel_size-1, pixel_size-1);
   }
   
   if (document.getElementById('display_center').checked) {
@@ -36,7 +37,7 @@ function draw_polar_axis () {
       drawCircle(ctx, canvas.width/2, canvas.height/2, coefficient*Math.tan(angle*Math.PI/180), '', '#ff0000', 2);
     }
   } else {
-    draw_pixels(last_matrix);
+    display_gradient_or_image();
   }
 }
 
@@ -47,7 +48,7 @@ function draw_center_axis () {
     drawLine(ctx, canvas.width/2, 0, canvas.width/2, canvas.height, '#ff0000');
     drawLine(ctx, 0, canvas.height/2, canvas.width, canvas.height/2, '#ff0000');
   } else {
-    draw_pixels(last_matrix);
+    display_gradient_or_image();
   }
 }
 
@@ -56,17 +57,19 @@ function draw_center_axis () {
 function call_ajax() {
   ajax('/getImageMatrix?scanAfter=1', (e) => {
     let json_response = JSON.parse(e.responseText);
-    last_matrix = json_response.matrix
-    draw_pixels(last_matrix);
+    last_matrix = json_response.matrix;
+    last_gradient = json_response.gradient;
+    display_gradient_or_image();
     last_timeout = setTimeout(call_ajax, 1500);
   });
 }
 
 function call_ajax_once() {
-  ajax('/getImageMatrix?scanAfter=1', (e) => {
+  ajax('/getImageMatrix?scanBefore=1', (e) => {
     let json_response = JSON.parse(e.responseText);
     last_matrix = json_response.matrix;
-    draw_pixels(last_matrix);
+    last_gradient = json_response.gradient;
+    display_gradient_or_image();
   });
 }
 
@@ -98,6 +101,7 @@ function toggle_demo() {
     document.getElementById("start_button").className = '';
     document.getElementById("start_button").innerText = 'Start';
     clearTimeout(last_timeout);
+    // TODO
   } else {
     running_demo = true;
     document.getElementById("frame_button").disabled = true;
@@ -110,23 +114,27 @@ function toggle_demo() {
 }
 
 
-function display_threshold () {
-  let label = document.getElementById('threshold_label');
-  let slider = document.getElementById('threshold_slider');
-  let checkbox = document.getElementById('display_threshold');
+function display_gradient_or_image () {
+  let label = document.getElementById('gradient_label');
+  let slider = document.getElementById('gradient_slider');
+  let checkbox = document.getElementById('display_gradient');
   
   if (checkbox.checked) {
     slider.disabled = false;
     label.innerText = slider.value;
-    let threshold_array = new Array(N_PIXELS**2);
-    for (let i = 0; i < N_PIXELS**2; i++) {
-      if ((last_matrix[i] & 0b00111111) >= slider.value) {
-        threshold_array[i] = 63;
-      } else {
-        threshold_array[i] = 0;
+    let gradient_array = new Array(N_PIXELS**2);
+    for (let y = 0; y < N_PIXELS-2; y++) {
+      for (let x = 0; x < N_PIXELS-2; x++) {
+        if (slider.value == 0) {
+          gradient_array[(y+1)*N_PIXELS + x + 1] = Math.round((last_gradient[y*(N_PIXELS-2) + x])/Math.SQRT2);
+        } else if ((last_gradient[y*(N_PIXELS-2) + x]) >= slider.value) {
+          gradient_array[(y+1)*N_PIXELS + x + 1] = 63;
+        } else {
+          gradient_array[(y+1)*N_PIXELS + x + 1] = 0;
+        }
       }
     }
-    draw_pixels(threshold_array);
+    draw_pixels(gradient_array);
   } else {
     slider.disabled = true;
     draw_pixels(last_matrix);

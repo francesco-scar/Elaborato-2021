@@ -98,7 +98,7 @@
                       <input type="checkbox" id="display_sun_center" name="display_sun_center" onchange="main_image_drawing_handler(); loop_sun_center_animation();">
                     </td>
                     <td>
-                      <label for="display_sun_center">Sun approximation step: </label><label id="sun_center_label">0</label> <input type="range" min="0" max="255" value="0" class="slider" id="sun_center_slider" oninput="main_image_drawing_handler()" disabled>
+                      <label for="display_sun_center">Sun approximation step: </label><label id="sun_center_label">0</label> <input type="range" min="0" max="511" value="0" class="slider" id="sun_center_slider" oninput="main_image_drawing_handler()" disabled>
                       <label for="loop_sun_center_animation" id="sun_center_loop_span_label" class="disabled"> Loop:</label> <input type="checkbox" id="loop_sun_center_animation" name="loop_sun_center_animation" onchange="loop_sun_center_animation()" disabled>
                     </td>
                   </tr>

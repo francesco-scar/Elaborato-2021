@@ -86,12 +86,15 @@ void imageMatrixRequest () {
     }
   }
 
-  gradient_descent(7, 8.5, 1, 256);
+  float starting_point[2];
+  detect_starting_point(starting_point, get_threshold());
+  
+  gradient_descent(starting_point[0], starting_point[1], 2, 512);
   
   String output_progressive = "";
-  for (uint16_t i = 0; i < 256*3; i++) {
+  for (uint16_t i = 0; i < 512*3; i++) {
     output_progressive += String(progressive_approximations[i]);
-    if (i != 256*3-1) {
+    if (i != 512*3-1) {
       output_progressive += ",";
     }
   }

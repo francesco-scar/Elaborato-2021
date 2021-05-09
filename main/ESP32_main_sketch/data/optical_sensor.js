@@ -1,7 +1,8 @@
 const N_PIXELS = 18;
 let last_matrix = new Array(18*18); last_matrix.fill(0);
 let last_gradient = new Array(16*16); last_gradient.fill(0);
-let progressive_approximations = new Array(256); progressive_approximations.fill([255, 255, 255]);
+let progressive_approximations = new Array(512); progressive_approximations.fill([255, 255, 255]);
+valid_image = false;
 
 let coefficient = 100;
 let steps = 10;
@@ -21,6 +22,7 @@ function call_ajax() {
     let json_response = JSON.parse(e.responseText);
     last_matrix = json_response.matrix;
     last_gradient = json_response.gradient;
+    valid_image = json_response.valid_image;
     progressive_approximations = json_response.progressive_approximations;
     main_image_drawing_handler();
     if (loop) {
@@ -34,6 +36,7 @@ function call_ajax_once() {
     let json_response = JSON.parse(e.responseText);
     last_matrix = json_response.matrix;
     last_gradient = json_response.gradient;
+    valid_image = json_response.valid_image;
     progressive_approximations = json_response.progressive_approximations;
     main_image_drawing_handler();
   });
@@ -144,7 +147,7 @@ function display_sun_center() {
   let slider = document.getElementById('sun_center_slider');
   let loop_label = document.getElementById('sun_center_loop_span_label');
   let animation_checkbox = document.getElementById('loop_sun_center_animation');
-  if (document.getElementById('display_sun_center').checked) {
+  if (document.getElementById('display_sun_center').checked && valid_image) {
     slider.disabled = false;
     let slider_val = slider.value;
     document.getElementById('sun_center_label').innerText = slider_val;

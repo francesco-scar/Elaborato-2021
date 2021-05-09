@@ -12,6 +12,37 @@ let running_demo = false;
 let last_timeout;
 let last_animation_interval;
 
+
+
+
+
+function call_ajax() {
+  ajax('/getImageMatrix?scanAfter=1', (e) => {
+    let json_response = JSON.parse(e.responseText);
+    last_matrix = json_response.matrix;
+    last_gradient = json_response.gradient;
+    progressive_approximations = json_response.progressive_approximations;
+    main_image_drawing_handler();
+    if (loop) {
+      last_timeout = setTimeout(call_ajax, 500);
+    }
+  });
+}
+
+function call_ajax_once() {
+  ajax('/getImageMatrix?scanBefore=1', (e) => {
+    let json_response = JSON.parse(e.responseText);
+    last_matrix = json_response.matrix;
+    last_gradient = json_response.gradient;
+    progressive_approximations = json_response.progressive_approximations;
+    main_image_drawing_handler();
+  });
+}
+
+
+
+
+
 function draw_pixels (matrix) {
   let canvas = document.getElementById("canvas_image");
   let pixel_size = canvas.width/N_PIXELS/2;       // Assuming it's a square
@@ -31,50 +62,19 @@ function draw_pixels (matrix) {
 }
 
 function draw_polar_axis () {
-  if (document.getElementById('display_polar').checked) {
-    let canvas = document.getElementById("canvas_image");
-    let ctx = canvas.getContext("2d");
-      
-    for (let angle = steps; angle <= max_angle; angle += steps) {
-      drawCircle(ctx, canvas.width/2, canvas.height/2, coefficient*Math.tan(angle*Math.PI/180), '', '#ff0000', 2);
-    }
-  } else {
-    display_sun_center();
+  let canvas = document.getElementById("canvas_image");
+  let ctx = canvas.getContext("2d");
+    
+  for (let angle = steps; angle <= max_angle; angle += steps) {
+    drawCircle(ctx, canvas.width/2, canvas.height/2, coefficient*Math.tan(angle*Math.PI/180), '', '#ff0000', 2);
   }
 }
 
 function draw_center_axis () {
-  if (document.getElementById('display_center').checked) {
-    let canvas = document.getElementById("canvas_image");
-    let ctx = canvas.getContext("2d");
-    drawLine(ctx, canvas.width/2, 0, canvas.width/2, canvas.height, '#ff0000');
-    drawLine(ctx, 0, canvas.height/2, canvas.width, canvas.height/2, '#ff0000');
-  } else {
-    display_sun_center();
-  }
-}
-
-
-
-function call_ajax() {
-  ajax('/getImageMatrix?scanAfter=1', (e) => {
-    let json_response = JSON.parse(e.responseText);
-    last_matrix = json_response.matrix;
-    last_gradient = json_response.gradient;
-    progressive_approximations = json_response.progressive_approximations;
-    display_sun_center();
-    last_timeout = setTimeout(call_ajax, 1500);
-  });
-}
-
-function call_ajax_once() {
-  ajax('/getImageMatrix?scanBefore=1', (e) => {
-    let json_response = JSON.parse(e.responseText);
-    last_matrix = json_response.matrix;
-    last_gradient = json_response.gradient;
-    progressive_approximations = json_response.progressive_approximations;
-    display_sun_center();
-  });
+  let canvas = document.getElementById("canvas_image");
+  let ctx = canvas.getContext("2d");
+  drawLine(ctx, canvas.width/2, 0, canvas.width/2, canvas.height, '#ff0000');
+  drawLine(ctx, 0, canvas.height/2, canvas.width, canvas.height/2, '#ff0000');
 }
 
 
@@ -118,36 +118,29 @@ function toggle_demo() {
 }
 
 
-function display_gradient_or_image () {
+function draw_gradient () {
   let label = document.getElementById('gradient_label');
   let slider = document.getElementById('gradient_slider');
-  let checkbox = document.getElementById('display_gradient');
-  
-  if (checkbox.checked) {
-    slider.disabled = false;
-    label.innerText = slider.value;
-    let gradient_array = new Array(N_PIXELS**2);
-    for (let y = 0; y < N_PIXELS-2; y++) {
-      for (let x = 0; x < N_PIXELS-2; x++) {
-        if (slider.value == 0) {
-          gradient_array[(y+1)*N_PIXELS + x + 1] = Math.round((last_gradient[y*(N_PIXELS-2) + x])/Math.SQRT2);
-        } else if ((last_gradient[y*(N_PIXELS-2) + x]) >= slider.value) {
-          gradient_array[(y+1)*N_PIXELS + x + 1] = 63;
-        } else {
-          gradient_array[(y+1)*N_PIXELS + x + 1] = 0;
-        }
+
+  slider.disabled = false;
+  label.innerText = slider.value;
+  let gradient_array = new Array(N_PIXELS**2);
+  for (let y = 0; y < N_PIXELS-2; y++) {
+    for (let x = 0; x < N_PIXELS-2; x++) {
+      if (slider.value == 0) {
+        gradient_array[(y+1)*N_PIXELS + x + 1] = Math.round((last_gradient[y*(N_PIXELS-2) + x])/Math.SQRT2);
+      } else if ((last_gradient[y*(N_PIXELS-2) + x]) >= slider.value) {
+        gradient_array[(y+1)*N_PIXELS + x + 1] = 63;
+      } else {
+        gradient_array[(y+1)*N_PIXELS + x + 1] = 0;
       }
     }
-    draw_pixels(gradient_array);
-  } else {
-    slider.disabled = true;
-    draw_pixels(last_matrix);
   }
+  draw_pixels(gradient_array);
 }
 
 
 function display_sun_center() {
-  display_gradient_or_image();
   let slider = document.getElementById('sun_center_slider');
   let loop_label = document.getElementById('sun_center_loop_span_label');
   let animation_checkbox = document.getElementById('loop_sun_center_animation');
@@ -175,10 +168,33 @@ function loop_sun_center_animation() {
     last_animation_interval = setInterval(() => {
       document.getElementById('sun_center_slider').value = (Number(document.getElementById('sun_center_slider').value) + 1 ) % 256;
       document.getElementById('sun_center_label').innerText = document.getElementById('sun_center_slider').value;
+      main_image_drawing_handler();
     }, 50);
   } else {
     clearInterval(last_animation_interval);
   }
+}
+
+
+
+function main_image_drawing_handler() {
+  if (document.getElementById('display_gradient').checked) {
+    draw_gradient();
+  } else {
+    document.getElementById('gradient_slider').disabled = true;
+    draw_pixels(last_matrix);
+  }
+  
+  
+  if (document.getElementById('display_polar').checked) {
+    draw_polar_axis();
+  }
+  
+  if (document.getElementById('display_center').checked) {
+    draw_center_axis();
+  }
+  
+  display_sun_center();
 }
 
 draw_pixels (last_matrix);

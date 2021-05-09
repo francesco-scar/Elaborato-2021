@@ -71,7 +71,7 @@
                   </colgroup>
                   <tr>
                     <td>
-                      <input type="checkbox" id="display_center" name="display_center" onchange="draw_center_axis()">
+                      <input type="checkbox" id="display_center" name="display_center" onchange="main_image_drawing_handler()">
                     </td>
                     <td>
                       <label for="display_center">Center</label>
@@ -79,7 +79,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <input type="checkbox" id="display_polar" name="display_polar" onchange="draw_polar_axis()">
+                      <input type="checkbox" id="display_polar" name="display_polar" onchange="main_image_drawing_handler()">
                     </td>
                     <td>
                       <label for="display_polar">Polar grid</label>
@@ -87,18 +87,18 @@
                   </tr>
                   <tr>
                     <td>
-                      <input type="checkbox" id="display_gradient" name="display_gradient" onchange="display_gradient_or_image()">
+                      <input type="checkbox" id="display_gradient" name="display_gradient" onchange="main_image_drawing_handler()">
                     </td>
                     <td>
-                      <label for="display_gradient">Gradient threshold: </label><label id="gradient_label">0</label> <input type="range" min="0" max="90" value="0" class="slider" id="gradient_slider" oninput="display_gradient_or_image()" disabled>
+                      <label for="display_gradient">Gradient threshold: </label><label id="gradient_label">0</label> <input type="range" min="0" max="90" value="0" class="slider" id="gradient_slider" oninput="main_image_drawing_handler()" disabled>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <input type="checkbox" id="display_sun_center" name="display_sun_center" onchange="display_sun_center(); loop_sun_center_animation();">
+                      <input type="checkbox" id="display_sun_center" name="display_sun_center" onchange="main_image_drawing_handler(); loop_sun_center_animation();">
                     </td>
                     <td>
-                      <label for="display_sun_center">Sun approximation step: </label><label id="sun_center_label">0</label> <input type="range" min="0" max="255" value="0" class="slider" id="sun_center_slider" oninput="display_sun_center()" disabled>
+                      <label for="display_sun_center">Sun approximation step: </label><label id="sun_center_label">0</label> <input type="range" min="0" max="255" value="0" class="slider" id="sun_center_slider" oninput="main_image_drawing_handler()" disabled>
                       <label for="loop_sun_center_animation" id="sun_center_loop_span_label" class="disabled"> Loop:</label> <input type="checkbox" id="loop_sun_center_animation" name="loop_sun_center_animation" onchange="loop_sun_center_animation()" disabled>
                     </td>
                   </tr>

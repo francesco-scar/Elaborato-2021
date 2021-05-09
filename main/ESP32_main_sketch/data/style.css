@@ -169,3 +169,10 @@ button:disabled {
   +box-shadow: 0 1px #fff;
   cursor: not-allowed;
 }
+
+input:disabled, label.disabled {
+  opacity: 0.3;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  cursor: not-allowed;
+}

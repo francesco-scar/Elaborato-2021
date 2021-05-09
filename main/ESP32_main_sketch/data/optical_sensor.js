@@ -10,6 +10,7 @@ let max_angle = 60;
 let loop = false;
 let running_demo = false;
 let last_timeout;
+let last_animation_interval;
 
 function draw_pixels (matrix) {
   let canvas = document.getElementById("canvas_image");
@@ -38,7 +39,7 @@ function draw_polar_axis () {
       drawCircle(ctx, canvas.width/2, canvas.height/2, coefficient*Math.tan(angle*Math.PI/180), '', '#ff0000', 2);
     }
   } else {
-    display_gradient_or_image();
+    display_sun_center();
   }
 }
 
@@ -49,7 +50,7 @@ function draw_center_axis () {
     drawLine(ctx, canvas.width/2, 0, canvas.width/2, canvas.height, '#ff0000');
     drawLine(ctx, 0, canvas.height/2, canvas.width, canvas.height/2, '#ff0000');
   } else {
-    display_gradient_or_image();
+    display_sun_center();
   }
 }
 
@@ -61,7 +62,7 @@ function call_ajax() {
     last_matrix = json_response.matrix;
     last_gradient = json_response.gradient;
     progressive_approximations = json_response.progressive_approximations;
-    display_gradient_or_image();
+    display_sun_center();
     last_timeout = setTimeout(call_ajax, 1500);
   });
 }
@@ -72,7 +73,7 @@ function call_ajax_once() {
     last_matrix = json_response.matrix;
     last_gradient = json_response.gradient;
     progressive_approximations = json_response.progressive_approximations;
-    display_gradient_or_image();
+    display_sun_center();
   });
 }
 
@@ -148,6 +149,8 @@ function display_gradient_or_image () {
 function display_sun_center() {
   display_gradient_or_image();
   let slider = document.getElementById('sun_center_slider');
+  let loop_label = document.getElementById('sun_center_loop_span_label');
+  let animation_checkbox = document.getElementById('loop_sun_center_animation');
   if (document.getElementById('display_sun_center').checked) {
     slider.disabled = false;
     let slider_val = slider.value;
@@ -157,8 +160,24 @@ function display_sun_center() {
     let pixel_size = canvas.width/N_PIXELS/2;       // Assuming it's a square
     drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, progressive_approximations[3*slider_val+2]*pixel_size, '', '#00ff00', 3);
     drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, 4, '#00ff00', '#00ff00', 3);
+    loop_label.className = '';
+    animation_checkbox.disabled = false;
   } else {
     slider.disabled = true;
+    loop_label.className = 'disabled';
+    animation_checkbox.disabled = true;
+    clearInterval(last_animation_interval);
+  }
+}
+
+function loop_sun_center_animation() {
+  if (document.getElementById('loop_sun_center_animation').checked && document.getElementById('display_sun_center').checked) {
+    last_animation_interval = setInterval(() => {
+      document.getElementById('sun_center_slider').value = (Number(document.getElementById('sun_center_slider').value) + 1 ) % 256;
+      document.getElementById('sun_center_label').innerText = document.getElementById('sun_center_slider').value;
+    }, 50);
+  } else {
+    clearInterval(last_animation_interval);
   }
 }
 

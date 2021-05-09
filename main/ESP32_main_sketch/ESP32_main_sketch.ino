@@ -4,6 +4,8 @@
 //#include <ESPmDNS.h>
 #include "secrets.h"
 
+//#define DEFAULT_MATRIX_TEST
+
 #define FORMAT_FILESYSTEM false
 #include <SPIFFS.h>
 
@@ -76,9 +78,11 @@ void setup() {
   });
 
   server.begin();
-  Serial.print("Get first image... ");
-  getImageMatrix();
-  Serial.println("Done!");
+  #ifndef DEFAULT_MATRIX_TEST
+    Serial.print("Get first image... ");
+    getImageMatrix();
+    Serial.println("Done!");
+  #endif
 }
 
 void loop() {

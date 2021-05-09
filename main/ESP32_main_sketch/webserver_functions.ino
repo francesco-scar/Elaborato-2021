@@ -64,7 +64,9 @@ bool handleFileRead(String path) {
 
 void imageMatrixRequest () {
   if (server.hasArg("scanBefore")) {
-    getImageMatrix();
+    #ifndef DEFAULT_MATRIX_TEST
+      getImageMatrix();
+    #endif
   }
   String output_matrix = "";
   for (uint16_t i = 0; i < 18 * 18; i++) {
@@ -84,6 +86,8 @@ void imageMatrixRequest () {
     }
   }
 
+  gradient_descent(7, 8.5, 1, 256);
+  
   String output_progressive = "";
   for (uint16_t i = 0; i < 256*3; i++) {
     output_progressive += String(progressive_approximations[i]);
@@ -92,7 +96,6 @@ void imageMatrixRequest () {
     }
   }
 
-  gradient_descent(7, 7, 7, 8);
 
   server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"valid_image\":" + valid_image + ", \"gradient\":[" + output_gradient + "], \"progressive_approximations\":[" + output_progressive + "]}");
   if (server.hasArg("scanAfter")) {

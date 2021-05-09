@@ -156,7 +156,7 @@ function display_sun_center() {
     let ctx = canvas.getContext("2d");
     let pixel_size = canvas.width/N_PIXELS/2;       // Assuming it's a square
     drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, progressive_approximations[3*slider_val+2]*pixel_size, '', '#00ff00', 3);
-    drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, 10, '#00ff00', '#00ff00', 3);
+    drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, 4, '#00ff00', '#00ff00', 3);
   } else {
     slider.disabled = true;
   }

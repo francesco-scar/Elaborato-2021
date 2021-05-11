@@ -5,6 +5,7 @@
     \addtolength{\topmargin}{-2cm}
     \addtolength{\textheight}{3cm}
     \renewcommand{\contentsname}{Contenuti}
+    \renewcommand{\figurename}{Fig.}
     \newenvironment{changemargin}[2]{%
     \begin{list}{}{%
     \setlength{\topsep}{0pt}%
@@ -28,9 +29,10 @@
     \usepackage{color}
     \usepackage{mwe}
     \usepackage{listings}    
-    \usepackage{etoolbox}    
-    \usepackage{hyperref}
+    \usepackage{etoolbox}
     \usepackage{amsmath}
+    \usepackage{graphicx}
+    \usepackage[hidelinks]{hyperref}
     
     \definecolor{mygreen}{rgb}{0,0.6,0}
     \definecolor{mygray}{rgb}{0.47,0.47,0.33}
@@ -121,8 +123,13 @@
 \section{Introduzione}
     \subsection{Descrizione}
     Si desidera realizzare un sistema di controllo automatico dell'orientamento e inclinazione degli specchi di un forno solare per garantire la massima efficienza al variare della posizione relativa del sole nell'arco della giornata.
-    Si desidera inoltre monitorare la temperatura e lo stato di funzionamento generale del sistema mediante un'interfaccia web che permetta l'impostazione di notifiche di allarme in caso di una temperatura troppo bassa per un tempo prolungato oppure trascorso un tempo prestabilito (funzione "timer").
+    Si desidera inoltre monitorare la temperatura e lo stato di funzionamento generale del sistema mediante un'interfaccia web che permetta di visualizzare un grafico in tempo reale dell'andamento della temperatura.
 
+
+    \subsection{Struttura generale}
+    Il sistema è composto da un contenitore di materiale isolante con la faccia superiore di vetro trasparente che permette alla luce solare di irradiare energia all'interno. La luce solare viene inoltre riflessa da due specchi posti ai lati opposti della faccia superiore (in particolare il lato superiore e quello inferiore).\\
+    L'intera struttura è solidale ad una base girevole, controllata da un motore, che permette la regolazione dell'azimuth, mentre l'inclinazione di ogni specchio è regolata singolarmente in funzione dell'elevazione del sole.
+    
 \section{Schema a blocchi}
 
 \/*
@@ -149,16 +156,45 @@
 \section{Descrizione componenti}
     \subsection{Microcontrollore}
     Per la realizzazione di questo sistema di controllo è stato scelto di utilizzare un ESP-32, un microcontrollore a 32 bit con ingressi e uscite compatibili con la logica TTL.\\
-    Per semplicità costruttiva di seguito ci si riferirà alla specifica implementazione me\-dian\-te la scheda di prototipazione rapida Arduino UNO.
+    Questo microcontrollore (come il suo predecessore ESP8266) è spesso impiegato in applicazioni IoT, anche in ambito professionale, per la connessione wifi (e bluetooth per quanto riguarda l'ESP-32) integrata in un unico chip a basso costo, permettendo ai diversi dispositivi di comunicare tra loro.\\
+    Per semplicità costruttiva di seguito ci si riferirà alla specifica implementazione me\-dian\-te la scheda di prototipazione rapida NodeMCU.
+    
     \subsection{Motori}
-    Si assume che l'apertura e la chiusura dei pannelli che costituiscono il tetto siano realiz\-zate attraverso l'attivazione di un motore in continua a 12V (potenza 25W), che, ad esempio, mediante un sistema vite-dado permette di trasformare il movimento rotatorio del motore in un movimento lineare; chiaramente l'apertura avviene grazie alla rotazione in un senso dell'asse del motore (si supponga in verso orario), mentre la chiusura avviene con la rotazione di senso opposto (antiorario).
+    Dovendo regolare con accuratezza la rotazione dei motori, per il controllo di azimuth e inclinazione, si è deciso di impiegare dei motori passo-passo, o stepper, in particolare il modello NEMA-17.\\
+    Questi attuatori sono motori ad impulsi, in quanto composti da bobine disposte in modo tale che, se eccitate in ordine opportuno, permettono di produrre una rotazione dell'asse inferiore a 1.8° per ogni step.\\
+    Il principio di funzionamento è schematizzato nell'immmagine seguente.\\
+    
+    
+    
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=300pt]{Draws/Animations/StepperMotor.png}
+        \caption{Fasi motore passo-passo, Wikimedia Commons \protect\footnotemark}
+    \end{figure}
+    
+    \vfill
+    \footnotetext{Questa immagine è tratta e modificata da Wikimedia Commons, informazioni riguardo l'autore originale, modifiche successive e licenza GNU Free Documentation License possono essere reperite al seguente link: commons.wikimedia.org/wiki/File:StepperMotor.gif}
+    
+    
         \subsubsection{Controllo di potenza}
-        Dovendo controllare la direzione di rotazione del motore è necessaria la realizzazione di ponte H, di seguito un esempio di costruzione con transistor MOSFET.\\
+        Per il controllo dell'attivazione delle bobine si è scelto di utilizzare il modulo A4988 (molto diffuso nelle macchine a controllo numerico hobbistiche), che permette il controllo della rotazione del motore mediante un segnale di direzione (orario/antiorario) e un segnale di step.\\
+        La logica di attivazione degli avvolgimenti del motore è gestita dell'integrato mediante due ponti H a fet, uno per bobina, che permettono la regolazione della potenza ad ogni avvolgimento.\\
+        Il funzionamento interno, come mostrato dal costruttore nel datasheet, può essere schematizzato con il seguente diagramma a blocchi.\\
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=370pt]{Draws/A4988_functional_diagram.png}
+            \caption{Diagramma funzionamento interno A4988, datasheet}
+            \label{fig:A4988_diagram}
+        \end{figure}
+        
+        \noindent
+        Gli ingressi $MS_1$, $MS_2$ e $MS_3$ permettono la selezione del rapporto di microstepping, infatti oltre alla modalità full-step, in cui le singole bobine vengono eccitate con controllo ON-OFF in successione, è possibile realizzare un controllo micro-stepping con l'attivazione progressiva delle bobine consecutive, permettendo di mantenere il rotore tra due stati successivi, garantendo una maggiore fluidità di movimento, riducendo oscillazioni, vibrazioni e dunque sollecitazioni meccaniche della struttura fisica.\\
+        Con riferimento all'immagine di Fig.~\ref{fig:A4988_diagram}
 
         \vspace{0.1cm}
 
 
-    \subsection{Sensori di temperatura}
+    \subsection{Termocoppia}
     Per la rilevazione della temperatura si è scelto di utilizzare il sensore LM35 che fornisce un'uscita in tensione proporzionale alla temperatura (in °C) ed è utilizzabile, nella con\-fi\-gu\-ra\-zio\-ne base, in un range di temperature da 2°C a 150°, in cui rientrano ampiamente le temperature tipiche di una serra.\\
     La tensione fornita in uscita del sensore è legata alla temperatura $T$ in gradi Celsius dalla relazione:
     \begin{equation}
@@ -174,7 +210,7 @@
 
 \vspace{1cm}
 
-\section{Condizionamento segnali sensori}
+\section{Condizionamento segnale sensore temperatura}
     Si limiti il range di interesse da 5°C a 50°C in cui rientra la regolare temperatura di una serra.\\
     Secondo la relazione (1) l'uscita in tensione del sensore varierà nell'intervallo [50mV; 500mV], mentre l'ADC integrato nel microcontrollore ATmega328, con $V_{ref}$ standard, ammette ingressi nel range [0V; 5V].\\
         È possibile applicare un offset di 
@@ -202,6 +238,10 @@
         \end{equation}
     
 \vspace{1cm}
+
+\section{Cenni matematici}
+    \subsection{Sistema coordinate cartesiane - polari}
+    \subsection{Relazioni trigonometriche}
 
 \section{Algoritmo}
     \subsection{Diagramma di flusso generale}

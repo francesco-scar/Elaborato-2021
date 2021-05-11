@@ -1,4 +1,3 @@
- 
 function ajax (url_request, callback) {
   if (window.XMLHttpRequest) {
     request = new XMLHttpRequest();

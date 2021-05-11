@@ -1,3 +1,5 @@
+let motors_enabled = true;
+
 document.getElementById('steps_slider').oninput = update_sliders;
 document.getElementById('speed_slider').oninput = update_sliders;
 document.getElementById('acceleration_slider').oninput = update_sliders;
@@ -140,5 +142,16 @@ function update_plot () {
   drawLine(ctx, 600-first_connection_x, 370, 550, 600, '#f00', 3);
   
 }
- 
+
+function toggle_enable () {
+  if (motors_enabled) {
+    motors_enabled = false;
+    document.getElementById('toggle_enable_button').className = '';
+  } else {
+    motors_enabled = true;
+    document.getElementById('toggle_enable_button').className = 'button_red';
+  }
+  ajax();
+}
+
 update_plot();

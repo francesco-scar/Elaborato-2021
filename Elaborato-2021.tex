@@ -189,7 +189,7 @@
         
         \noindent
         Gli ingressi $MS_1$, $MS_2$ e $MS_3$ permettono la selezione del rapporto di microstepping, infatti oltre alla modalità full-step, in cui le singole bobine vengono eccitate con controllo ON-OFF in successione, è possibile realizzare un controllo micro-stepping con l'attivazione progressiva delle bobine consecutive, permettendo di mantenere il rotore tra due stati successivi, garantendo una maggiore fluidità di movimento, riducendo oscillazioni, vibrazioni e dunque sollecitazioni meccaniche della struttura fisica.\\
-        Con riferimento all'immagine di Fig.~\ref{fig:A4988_diagram} si può osservare che il dispositivo permette di regolare la coppia massima del motore mediante la regolazione di una tensione di riferimento che agisce sulla corrente massima che viene fornita alle bobine (misurata dalle resistenze di shunt $R_{s1}$ e $R_{s2}$ che forniscono un feedback al sistema di controllo).
+        Con riferimento all'immagine di Fig. \ref{fig:A4988_diagram} si può osservare che il dispositivo permette di regolare la coppia massima del motore mediante la regolazione di una tensione di riferimento che agisce sulla corrente massima che viene fornita alle bobine (misurata dalle resistenze di shunt $R_{s1}$ e $R_{s2}$ che forniscono un feedback al sistema di controllo).
 
         \vspace{0.1cm}
 
@@ -203,8 +203,50 @@
     \end{equation}
     Nella sezione \ref{conditioning} si tratterà più approfonditamente il condizionamento di questo segnale per sfruttare l'intero range dell'ADC del microcontrollore.
     
-    \subsection{Sensore ottico}
-    \subsection{Interfaccia web}\label{optical_sensor}
+    
+    \subsection{Sensore ottico}\label{optical_sensor}
+    Il sensore principale di questo sistema di controllo è l'ADNS-2610, che viene utilizzato dal microcontrollore per calcolare l'azimuth e l'elevazione relativi del sole.\\
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=250pt]{Draws/ADNS-2610_die/WIN_20210501_17_42_53_Pro.jpg}
+        \caption{Sensore ADNS-2610}
+        \label{fig:ADNS2610_die}
+    \end{figure}
+   
+    \noindent
+    Questo integrato nasce come sensore per mouse ottici, che dispongono di una fotocamera a bassa risoluzione e confrontano le immagini di due frame successivi per individuare lo spostamento relativo alla superficie sottostante, nella porzione di sinistra della figura \ref{fig:ADNS2610_die} si osserva la matrice 18x18 degli elementi fotosensibili (l'immagine è stata realizzata con un ingrandimento e l'area effettiva coperta dalla griglia è di circa 2 $mm^2$).\\
+    Il principio di funzionamento è identico ad una camera a foro di spillo, in cui l'immgine viene proiettata sullo schermo fotosensibile attraverso un foro circolare di piccole dimensioni.
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=150pt]{Draws/Pinhole_sun}
+        \caption{Schema immagine stenoscopica}
+        \label{fig:pinhole_sun}
+    \end{figure}
+    
+    \noindent
+    La posizione dell'immagine sullo schermo, a parità delle altre condizioni, varia al variare della distanza tra il foro e il sensore stesso, in particolare, aumentando tale distanza il dispositivo avrà un angolo di campo minore, viceversa, diminuendo la distanza foro-rivelatore, si otterrà un angolo di campo maggiore.
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=110pt]{Draws/Pinhole_diagram}
+        \caption{Diagramma camera a foro di spillo}
+        \label{fig:pinhole_diagram}
+    \end{figure}
+    
+    \noindent
+    In cui la relazione tra $x$ e l'angolo $\theta$ del raggio rispetto allo zenit è:
+    \begin{equation}\label{pinhole_angle_relation}
+        x = h \cdot tan(\theta)
+    \end{equation}
+    
+    \noindent
+    Maggiori dettagli riguardo l'interfacciamento in protocollo con il microcontrollore sono forniti nella sezione \ref{adns2610_protocol}.
+    
+    \subsection{Interfaccia web}
+    
+    
 
 
 \vspace{1cm}
@@ -247,7 +289,7 @@
 
     \subsection{Analisi funzioni principali}
         \subsubsection{Controllo accelerazione motori}
-        \subsubsection{Protocollo sensore ottico}
+        \subsubsection{Protocollo sensore ottico}\label{adns2610_protocol}
         \subsubsection{Calcolo gradiente}
         
         

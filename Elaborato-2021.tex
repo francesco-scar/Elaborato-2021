@@ -189,28 +189,27 @@
         
         \noindent
         Gli ingressi $MS_1$, $MS_2$ e $MS_3$ permettono la selezione del rapporto di microstepping, infatti oltre alla modalità full-step, in cui le singole bobine vengono eccitate con controllo ON-OFF in successione, è possibile realizzare un controllo micro-stepping con l'attivazione progressiva delle bobine consecutive, permettendo di mantenere il rotore tra due stati successivi, garantendo una maggiore fluidità di movimento, riducendo oscillazioni, vibrazioni e dunque sollecitazioni meccaniche della struttura fisica.\\
-        Con riferimento all'immagine di Fig.~\ref{fig:A4988_diagram}
+        Con riferimento all'immagine di Fig.~\ref{fig:A4988_diagram} si può osservare che il dispositivo permette di regolare la coppia massima del motore mediante la regolazione di una tensione di riferimento che agisce sulla corrente massima che viene fornita alle bobine (misurata dalle resistenze di shunt $R_{s1}$ e $R_{s2}$ che forniscono un feedback al sistema di controllo).
 
         \vspace{0.1cm}
 
 
     \subsection{Termocoppia}
-    Per la rilevazione della temperatura si è scelto di utilizzare il sensore LM35 che fornisce un'uscita in tensione proporzionale alla temperatura (in °C) ed è utilizzabile, nella con\-fi\-gu\-ra\-zio\-ne base, in un range di temperature da 2°C a 150°, in cui rientrano ampiamente le temperature tipiche di una serra.\\
-    La tensione fornita in uscita del sensore è legata alla temperatura $T$ in gradi Celsius dalla relazione:
-    \begin{equation}
+    Per la rilevazione della temperatura si è scelto di utilizzare una termocoppia di tipo K a giunzione Chromel-Alumel (leghe metalliche a base di nichel), sensore molto diffuso che premette di misurare temperature nel range da circa -200 °C a oltre 1300 °C, con una sensibilità di $41 \frac{\mu V}{\degree C}$.\\
+    Le termocoppie sfruttano l'effetto Seebeck, un effetto termoelettrico che produce una differenza di potenziale tra due punti di un materiale conduttore proporzionale alla differenza di temperatura tra i due punti (detti guinzione calda e giunzione fredda); l'intensità di questo effetto varia a seconda del materiale in considerazione e quindi, utilizzando due maetalli differenti, è possibile calcolare la temperatura del giunto caldo nota la differenza di potenziale e la temperatura del giunto freddo.\\
+    Per rendere apprezzabili tali variazioni di tensione è necessario impiegare un amplificatore da strumentazione, in particolare si è scelto l'AD595, che garantisce la compensazione interna della temperatura della giunzione fredda e fornisce in uscita una tensione proporzionale alla tempreatura secondo la relazione:
+    \begin{equation}\label{thermocouple_relation_AD595}
         V_{out} = T \cdot 10 \frac{mV}{\degree C}
     \end{equation}
-    È stato scelto di condizionare ogni segnale separatamente per ridurre le distorsioni re\-la\-ti\-ve dei segnali, dovute alla trasmissione via cavo per relativamente lunghe distanze causate dalla disposizione dei sensori all'interno della serra; infatti a parità di rumore assoluto il rapporto segnale-rumore è maggiore, e quindi migliore, per segnali a tensioni maggiori.\\
-    Il costruttore del sensore, nel datasheet, garantisce una precisione inferiore a 0.5°C (sti\-ma\-to per eccesso), questo comporta una possibile escursione dell'uscita del sensore cor\-ris\-pon\-den\-te alla variazione di $\pm$0.5°C anche in condizioni di temperatura stazionaria, per questo motivo è opportuno gestire la possibile oscillazione della temperatura nell'al\-go\-rit\-mo decisionale, creando un'isteresi di $\pm$0.5°C nell'intorno della soglia T, per evitare indesiderate e ripetute aperture e chiusure dei pannelli della serra che possono dan\-neg\-gia\-re i componenti meccanici, oltre ad aumentare i consumi e a produrre altri effetti indesiderati.
+    Nella sezione \ref{conditioning} si tratterà più approfonditamente il condizionamento di questo segnale per sfruttare l'intero range dell'ADC del microcontrollore.
     
-    \subsection{Display}
-    Per la visualizzazione delle temperature è stato scelto l'utilizzo di un display LCD con 16x2 caratteri e interfaccia I$^2$C, che permette la comunicazione attraverso due soli se\-gna\-li: un clock controllato dal master (o primario) ed una linea half-duplex che viene alternativamente controllata dal master o dallo slave (o secondario).\\
-    Il microcontrollore ATmega328 dispone delle porte PC4 e PC5 per la comunicazione in protocollo I$^2$C gestita in hardware, ma questi ingressi sono già utilizzati quali ingressi analogici per la lettura dei 6 sensori LM35, per questo motivo è necessario simulare in software il protocollo seriale con altri pin digitali disponibili, aumentando leggermente i tempi di trasmissione, ma che, considerata la scarsa velocità di risposta del sistema dovute alle elevate inerzie termiche della serra, non comporta particolari problematiche nel sistema di controllo.\\
-    La visualizzazione della temperatura media può essere sostituita con la visualizzazione delle singole 6 temperature, e viceversa, mediante la pressione di un pulsante.
+    \subsection{Sensore ottico}
+    \subsection{Interfaccia web}\label{optical_sensor}
+
 
 \vspace{1cm}
 
-\section{Condizionamento segnale sensore temperatura}
+\section{Condizionamento segnale sensore temperatura}\label{conditioning}
     Si limiti il range di interesse da 5°C a 50°C in cui rientra la regolare temperatura di una serra.\\
     Secondo la relazione (1) l'uscita in tensione del sensore varierà nell'intervallo [50mV; 500mV], mentre l'ADC integrato nel microcontrollore ATmega328, con $V_{ref}$ standard, ammette ingressi nel range [0V; 5V].\\
         È possibile applicare un offset di 
@@ -248,6 +247,7 @@
 
     \subsection{Analisi funzioni principali}
         \subsubsection{Controllo accelerazione motori}
+        \subsubsection{Protocollo sensore ottico}
         \subsubsection{Calcolo gradiente}
         
         

@@ -194,7 +194,7 @@
         \vspace{0.1cm}
 
 
-    \subsection{Termocoppia}
+    \subsection{Termocoppia}\label{thermocouple}
     Per la rilevazione della temperatura si è scelto di utilizzare una termocoppia di tipo K a giunzione Chromel-Alumel (leghe metalliche a base di nichel), sensore molto diffuso che premette di misurare temperature nel range da circa -200 °C a oltre 1300 °C, con una sensibilità di $41 \frac{\mu V}{\degree C}$.\\
     Le termocoppie sfruttano l'effetto Seebeck, un effetto termoelettrico che produce una differenza di potenziale tra due punti di un materiale conduttore proporzionale alla differenza di temperatura tra i due punti (detti guinzione calda e giunzione fredda); l'intensità di questo effetto varia a seconda del materiale in considerazione e quindi, utilizzando due maetalli differenti, è possibile calcolare la temperatura del giunto caldo nota la differenza di potenziale e la temperatura del giunto freddo.\\
     Per rendere apprezzabili tali variazioni di tensione è necessario impiegare un amplificatore da strumentazione, in particolare si è scelto l'AD595, che garantisce la compensazione interna della temperatura della giunzione fredda e fornisce in uscita una tensione proporzionale alla tempreatura secondo la relazione:
@@ -244,40 +244,53 @@
     \noindent
     Maggiori dettagli riguardo l'interfacciamento in protocollo con il microcontrollore sono forniti nella sezione \ref{adns2610_protocol}.
     
-    \subsection{Interfaccia web}
+    %\subsection{Interfaccia web}
     
-    
-
-
-\vspace{1cm}
-
+ 
 \section{Condizionamento segnale sensore temperatura}\label{conditioning}
-    Si limiti il range di interesse da 5°C a 50°C in cui rientra la regolare temperatura di una serra.\\
-    Secondo la relazione (1) l'uscita in tensione del sensore varierà nell'intervallo [50mV; 500mV], mentre l'ADC integrato nel microcontrollore ATmega328, con $V_{ref}$ standard, ammette ingressi nel range [0V; 5V].\\
+    Considerata l'uscita del AD595 descritta dall'equazione (\ref{thermocouple_relation_AD595}) nella sezione \ref{thermocouple} e considerata la risoluzione di 12 bit degli ADC del microcontrollore, si ottiene una minima variazione apprezzabile (idealmente) inferiore a 0.12 °C. Per questo motivo non è necessario realizzare un secondo condizionamento del segnale, in quanto tale valore di incertezza è trascurabile rispetto alle temperature da misurare e alle altre fonti di errore presenti; per maggiore completezza si riporta comunque un possibile condizionamento di tale segnale. \\
+    
+    \vspace{0.2cm}
+    
+    \noindent
+    Si limiti il range di interesse da 15°C a 300°C in cui rientra la regolare temperatura di un forno solare.\\
+    Secondo la relazione (\ref{thermocouple_relation_AD595}) l'uscita in tensione del sensore varierà all'interno dell'intervallo [150mV; 3.0V], mentre l'ADC integrato nel microcontrollore, con $V_{ref}$ standard, ammette ingressi nel range [0V; 3.3V]; di seguito si suppongono tutti i dispositivi impiegati come ideali.\\
         È possibile applicare un offset di 
-        \begin{equation}
-            {V_{offset}} = V_{Smin} - V_{ADCmin}
+        \begin{equation}\label{offset}
+            {V_{offset}} = V_{Smin} - V_{ADCmin} = 150 mV
         \end{equation}
         e successivamente un'amplificazione di
-        \begin{equation}
-            A = \frac{V_{ADCmax}-V_{ADCmin}}{V_{Smax} - V_{Smin}}
+        \begin{equation}\label{amplification}
+            A = \frac{V_{ADCmax}-V_{ADCmin}}{V_{Smax} - V_{Smin}} \simeq 1.16
         \end{equation}
         utilizzando un amplificatore operazionale in configurazione differenziale come segue.
 
-        In cui il potenziometro $RP_1$ deve essere opportunamente regolato in fase di calibrazione per ottenere l'offset corretto.\\
-        Essendo $R_7=R_9$ e $R_8=R_{10}$ l'amplificazione risulta $A = \frac{R_7}{R_8} \simeq 11.1$, stesso valore ottenuto sostituendo i rispettivi valori numerici nell'equazione (3).\\
-        Combinando le equazioni (1), (2) e (3), la funzione di trasferimento dell'amplificatore differenziale e considerata la conversione dell'ADC a 10 bit dell'ATmega328 (valore da 0 a 1023), si ottiene:
+        \noindent
+        \begin{center}
+            \includegraphics[
+                page=1,
+                width=\textwidth-120pt,
+                keepaspectratio
+            ]{Draws/Schematic_Elaborato_2021-05-15_differential.pdf}
+        \end{center}
+                
+        \noindent
+        In cui il potenziometro (o trimmer) $RP_1$ deve essere opportunamente regolato in fase di calibrazione per ottenere l'offset corretto.\\
+        Essendo $R_1=R_2$ e $R_3=R_4$ l'amplificazione risulta $A = \frac{R_3}{R_1} \simeq 1.16$, stesso valore ottenuto sostituendo i rispettivi valori numerici nell'equazione (\ref{amplification}). Riguardo alle due resistenze da $57.8 k\Omega$, tale può essere ottenuto dalla serie di una resistenza da $56 k\Omega$ e da $1.8 k\Omega$, entrambi valori appartenenti alla serie E12.\\
+        Combinando le equazioni (\ref{thermocouple_relation_AD595}), (\ref{offset}) e (\ref{amplification}), la funzione di trasferimento dell'amplificatore differenziale e considerata la conversione dell'ADC a 12 bit dell'ESP-32 (valore da 0 a 4095), si ottiene:
         \begin{equation}
-            Val_{ADC} = \left( T \cdot 10 \left[ \frac{mV}{\degree C} \right] - 50 [mV] \right) \cdot \frac{500}{45} \cdot \frac{1023}{5V} = \left( \frac{T}{1 [\degree C]} - 5 \right) \cdot  \frac{1023}{45}
+            Val_{ADC} = \left( T \cdot 10 \left[ \frac{mV}{\degree C} \right] - 150 [mV] \right) \cdot \frac{57.8}{50} \cdot \frac{4095}{3.3[V]} \simeq \left( \frac{T}{1 [\degree C]} - 15 \right) \cdot  14.345
         \end{equation}
         
         \noindent
-        da cui si ricava
+        chiaramente approssimato all'intero, da cui si ricava
         
         \begin{equation}
-            T = \left( Val_{ADC} \cdot \frac{45}{1023} + 5 \right) [\degree C]
+            T = \left( \frac{Val_{ADC}}{14.345} + 15 \right) [\degree C]
         \end{equation}
     
+        \noindent
+        L'aggiunta di questo condizionamento richiede inoltre ulteriori componenti per la generazione dell'alimentazione duale per l'operazionale, quindi, in aggiunta a quanto già discusso all'inizio di questa sezione, non è stato ritenuto necessario impiegare condizionamenti successivi all'integrato AD595.
 \vspace{1cm}
 
 \section{Cenni matematici}

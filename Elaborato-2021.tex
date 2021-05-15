@@ -132,18 +132,26 @@
     
 \section{Schema a blocchi}
 
-\/*
+
 \noindent
 \includegraphics[
     page=1,
     width=\textwidth,
     height=\textheight,
     keepaspectratio
-]{}
-*/
+]{Draws/Block_diagram.pdf}
 
+\noindent
+Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quando premuti.\\
 
-\vspace{0.5cm}
+\vspace{0.3cm}
+\noindent
+I pin indicati a destra nel diagramma (GPIO25, GPIO32, GPIO33, GPIO13, GPIO12, GPIO14, GPIO19, GPIO18 e GPIO5) sono uscite, mentre i pin indicati a sinistra (GPIO23, GPIO0, GPIO15, GPIO2, GPIO4, GPIO25) sono input, unica eccezione il GPIO 22, che, come trattato in seguito nella sezione \ref{adns2610_protocol}, per la natura del protocollo seriale implementato dal sensore ADNS2610 richiede la possibilità di scambiare dati in modo bidirezionale.\\
+
+\vspace{0.3cm}
+\noindent
+Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegamenti con i pin esterni.
+
 \noindent
 
 
@@ -356,7 +364,6 @@
                 \end{cases}
         \end {equation}
         
-    \subsection{Esempio di implementazione}
 
 \/*
     \begin{changemargin}{-1cm}{-1cm}

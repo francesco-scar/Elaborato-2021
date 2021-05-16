@@ -309,6 +309,38 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
 
 \section{Cenni matematici}
     \subsection{Sistema coordinate cartesiane - polari}
+    Si ricorda che è possibile definire in modo univoco un punto A sul piano cartesiano mediante le sue coordinate $(x_A, y_A)$. Lo stesso punto A può anche essere descritto univocamente dalla distanza $r$ dal centro e dall'angolo $\alpha$ che esso forma con il centro e il semiasse positivo delle ascisse.
+    
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=300pt]{Draws/geogebra-export_polar_circle.png}
+        \caption{Rappresentazione coordinate polari su piano cartesiano, geogebra}
+    \end{figure}
+    
+    \noindent
+    È possibile ottenere la rapprentazione cartesiana dalle coordinate polari secondo le relazioni:
+    
+    \begin{equation}
+        \begin{split}
+        x_A = r \cdot \cos\alpha \\
+        y_A = r \cdot  \sin\alpha
+        \end{split}
+    \end{equation}
+    
+    \noindent
+    Viceversa:
+    
+    \begin{equation}
+        \begin{split}
+        r = \sqrt{x_A^2 + y_A^2} \\
+        \alpha = atan \left(\frac{y_A}{x_A} \right)
+        \end{split}
+    \end{equation}
+    
+    \noindent
+    In particolare, una volta determinata la posizione del centro del sole nell'immagine acquisita, ed espresso tale punto in coordinate polari $(r, \alpha)$, $r$ è direttamente legato all'elevazione effettiva del sole secondo la relazione (\ref{})
+    
+    
     \subsection{Relazioni trigonometriche}
 
 \section{Algoritmo}

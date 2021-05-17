@@ -13,6 +13,8 @@ void getImageMatrix() {
     if (data & 0b01000000) {
       matrix[i/18][i%18] = data;
       i++;
+    } else {
+      Serial.print('-');
     }
   }
 }

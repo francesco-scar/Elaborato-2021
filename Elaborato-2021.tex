@@ -338,10 +338,63 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
     \end{equation}
     
     \noindent
-    In particolare, una volta determinata la posizione del centro del sole nell'immagine acquisita, ed espresso tale punto in coordinate polari $(r, \alpha)$, $r$ è direttamente legato all'elevazione effettiva del sole secondo la relazione (\ref{})
+    In particolare, una volta determinata la posizione del centro del sole nell'immagine acquisita, ed espresso tale punto in coordinate polari $(r, \alpha)$, $r$ è direttamente legato all'elevazione effettiva del sole secondo la relazione (\ref{pinhole_angle_relation}), mentre $\alpha$ indica la diffetenza tra l'azimuth del sole e la posizione attuale della base girevole. Si osserva, infatti, che le due quantità possono essere trattate indipendentemente, in quanto ruotando la base varierà $\alpha$, mentre $r$ sarà, idealmente, costante (il centro si muove lungo una circonferenza di raggio $r$); viceversa, una variazione della sola elevazione non varia il valore di $\alpha$ (il punto si muove su uno stesso raggio della circonferenza originale).
     
     
     \subsection{Relazioni trigonometriche}
+    Per ottimizzare la potenza assorbita dal forno si vuole che la totalità della luce che investe gli specchi venga riflessa all'interno del forno, attraverso il vetro trasparente posto sulla faccia sueriore della scatola. La situazione può essere schematizzata come segue.
+
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=300pt]{Draws/Reflection_schematics_trig.png}
+        \caption{Schema riflessioni raggi solari}
+    \end{figure}
+    
+    \noindent
+    Dal rispetto del teorema di Carnot e dalle relazioni trigonometriche nei triangoli rettangoli si ottiene:
+    
+    \begin{equation}
+        \sqrt{a^2 + b^2 - 2 a b \cos(\pi-\theta_1)}  \cdot \sin \left(2 \theta_1 - \alpha - \frac{\pi}{2} \right) = a \cdot \sin(\theta_1)
+    \end{equation}
+
+    \noindent
+    Che può essere riscritto come:
+    
+    \begin{equation}
+        \sqrt{a^2 + b^2 + 2 a b \cos(\theta_1)}  \cdot \cos(2 \theta_1 - \alpha) + a \cdot \sin(\theta_1) = 0
+    \end{equation}
+    
+    \noindent
+    In modo equivalente si ottiene
+    \begin{equation}
+        \sqrt{a^2 + b^2 + 2 a b \cos(\theta_2)}  \cdot \cos(2 \theta_2 + \alpha) + a \cdot \sin(\theta_2) = 0
+    \end{equation}
+    
+    \noindent
+    Risolvere algebricamente queste equazioni risulta particolarmente lungo, sebbene non difficile, e considerato che il range di interesse si limita a $\alpha \in [0, \frac{\pi}{2})$ e $\theta_1, \theta_2 \in (0, \pi)$ si può valutare di risolvere per approssimazione tali uguaglianze per trovare il valore degli angoli cercati per uno specifico valore di $\alpha$ misurato.
+    
+    \vspace{1cm}
+    
+    \noindent
+    L'inclinazione degli specchi viene regolata mediante un sistema vite-dado, che può essere schematizzato come segue.
+    
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=250pt]{Draws/Linear_inclination_trig.png}
+        \caption{Schema inclinazione specchi}
+    \end{figure}
+    
+    \noindent
+    In cui sia $d$ che $\beta$ sono noti, in quanto determinati dalla costruzione e $\theta$ è l'angolo calcolato in precedenza. È quindi possibile calcolare la distanza $\overline{\rm BD}$, dipendente dalla rotazione del motore, applicando nuovamente il teorema di Carnot:
+    
+    \begin{equation}
+        \overline{\rm BD} = \sqrt{a^2 + d^2 - 2 a b \cdot \cos(\beta + \theta)}
+    \end{equation}
+    
+    \vspace{1cm}
+    
+    \noindent
+    Infine, nota tale distanza, è possibile calcolare la rotazione del motore per portarlo alla posizione voluta, ma è necessario conoscere anche la posizione attuale assoluta dello specchio, per questo motivo è necessario un finecorsa che all'accensione permetta al controllore di avere un riferimento assoluto (analoga alla procedura di homing per le macchine a controllo numerico).
 
 \section{Algoritmo}
     \subsection{Diagramma di flusso generale}

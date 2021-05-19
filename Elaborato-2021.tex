@@ -6,6 +6,9 @@
     \addtolength{\textheight}{3cm}
     \renewcommand{\contentsname}{Contenuti}
     \renewcommand{\figurename}{Fig.}
+    
+    \setlength\parindent{0pt}
+    
     \newenvironment{changemargin}[2]{%
     \begin{list}{}{%
     \setlength{\topsep}{0pt}%
@@ -33,6 +36,7 @@
     \usepackage{amsmath}
     \usepackage{graphicx}
     \usepackage[hidelinks]{hyperref}
+    \usepackage[hang,flushmargin]{footmisc}
     
     \renewcommand{\lstlistingname}{Codice}
 
@@ -107,7 +111,7 @@
         language = Octave,
         keywords=[1]{void, digitalRead, digitalWrite, micros, millis, delay, delayMicroseconds},
         keywords=[2]{if, else, while, for, do},%                 define keywords
-        keywords=[3]{HIGH, OUTPUT, LOW, INPUT, true, false, int, long, unsigned, float, bool},
+        keywords=[3]{HIGH, OUTPUT, LOW, INPUT, true, false, int, long, unsigned, float, bool, char, uint8_t, uint18_t, int8_t, uint16_t},
         morecomment=[l]{//},%             treat // as comments
         morecomment=[s]{/*}{*/},%         define /* ... */ comments
     }
@@ -423,7 +427,6 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         \noindent
         L'andamento nel tempo mostrato in figura \ref{Steps_velocity_acceleration_in_time} può essere suddiviso in 3 fasi: una iniziale di accelerazione (ad accelerazione costante), un'eventuale fase centrale a velocità costante ed una finale di decelerazione (con accelerazione costante e opposta a quella iniziale).\\
         
-        \noindent
         Ricordando le equazioni del moto uniformemente accelerato, si ha:
         \begin{equation}
             s(t) = s_0 + v_0 \cdot t + \frac{1}{2} \cdot a \cdot t^2
@@ -434,8 +437,8 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         
 
         \vspace{0.1cm}
-        \noindent
-        Una possibile implementazione per il microcontrollore in considerazione può essere la seguente.
+
+        Una possibile implementazione per il microcontrollore in considerazione può essere la seguente\footnote{Questa funzione fa parte di del programma completo nel suo complesso, per cui vi sono riferimenti a variabili globali costanti non definite all'interno di questa funzione.}.
         
         
         \begin{changemargin}{-2cm}{-2cm}
@@ -502,6 +505,73 @@ void move_stepper (long n_steps, float speed, float acceleration, int dir_pin, i
         \end{changemargin}
         
         \subsubsection{Protocollo sensore ottico}\label{adns2610_protocol}
+        
+        Il sensore ADNS2610 utilizza un protocollo digitale sincrono che permette la lettura e scrittura di registri interni con diverse funzioni. Per l'applicazione in questione è rilevante il registro 0x08, che alla $i$-esima lettura dell'ultima scrittura in questo registro fornisce un byte riguardante l'$i$-esimo pixel (ripartendo dal primo quando si raggiunge l'ultimo pixel): il bit più significativo  indica se il pixel è o meno il primo dell'immagine; il bit successivo è posto a 1 se e solo se il dato è corretto e può essere letto; i restanti 6 bit rappresentano la luminosità del pixel in questione.
+        
+        Ogni comunicazione è iniziata dal master, che controlla il clock, e trasmette un bit che indica se intende scrivere o leggere un registro, seguito da 7 bit indicanti l'indirizzo del registro stesso (MSB-first).
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=\textwidth]{Draws/Logic_analyzer_ADNS2610.png}
+            \caption{Diagramma temporale protocollo comunicazione}
+        \end{figure}
+        
+        Nel diagramma precedente si osserva chiaramente una prima comunicazione che scrive nel registro 0x08 (per resettare lo stato interno e leggere successivamente il primo pixel) seguita da una lettura dello stesso registro che ritorna la luminosità del primo pixel.
+      
+        \vspace{0.7cm}
+        Un possibile esempio di implementazione può essere il seguente\footnote{Come nell'esempio precedente vi sono variabili globali non definite, in particolare la variabile "matrix" conterrà la matrice rappresentante l'immagine acquisita}.
+        
+        \begin{changemargin}{-2cm}{-2cm}
+        \begin{lstlisting}[label={list:protocol_implementation}, style=Arduino, caption=Lettura immagine da sensore, basicstyle=\scriptsize]
+int i = 0;
+while (i < 18 * 18) {
+  delayMicroseconds(1);
+  uint8_t data = read(0x08);
+  if (data & 0b01000000) {
+    matrix[i/18][i%18] = data;
+    i++;
+  }
+}
+
+void write(uint8_t register_addr, uint8_t data) {
+  register_addr |= 0b10000000;                  // Set MSB to 1
+  write_byte(register_addr);
+  delayMicroseconds(200);
+  write_byte(data);
+  delayMicroseconds(200);
+}
+
+uint8_t read(uint8_t register_addr) {
+  register_addr &= 0b01111111;                  // Set MSB to 0
+  write_byte(register_addr);
+  pinMode(SDIO, INPUT);                         // High-Z mode
+  delayMicroseconds(100);                       // T_hold >= 100us from specifications
+
+  uint8_t read_data = 0;
+  for (int8_t i = 7; i >= 0; i--) {
+    digitalWrite(SCK, LOW);                     // Start clock signal
+    delayMicroseconds(50);                      // Same as mouse application
+    digitalWrite(SCK, HIGH);                    // Data must be read on transition from 0 to 1
+    read_data += digitalRead(SDIO) << i;        // Data line must be read here
+    delayMicroseconds(50);                      // Same as mouse application
+  }
+  return read_data;
+}
+
+
+void write_byte (uint8_t byte_val) {
+  pinMode(SDIO, OUTPUT);
+
+  for (int8_t i = 7; i >= 0; i--) {
+    digitalWrite(SCK, LOW);                     // Start clock signal
+    digitalWrite(SDIO, byte_val & (1 << i));    // Data line must be set here
+    delayMicroseconds(50);                      // Same as mouse application
+    digitalWrite(SCK, HIGH);                    // A2610 latchs data on transition from 0 to 1
+    delayMicroseconds(50);                      // Same as mouse application
+  }
+}       \end{lstlisting}
+        \end{changemargin}
+        
         \subsubsection{Calcolo gradiente}
         
         

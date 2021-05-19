@@ -46,44 +46,16 @@
     \definecolor{arduino_gray}{RGB}{170, 170, 170}
     
 
-    \newcommand*{\FormatDigit}[1]{\ttfamily\textcolor{mygreen}{#1}}
-    %% https://tex.stackexchange.com/questions/32174/listings-package-how-can-i-format-all-numbers
-    \lstdefinestyle{FormattedNumber}{%
-        literate=*{0}{{\FormatDigit{0}}}{1}%
-                 {1}{{\FormatDigit{1}}}{1}%
-                 {2}{{\FormatDigit{2}}}{1}%
-                 {3}{{\FormatDigit{3}}}{1}%
-                 {4}{{\FormatDigit{4}}}{1}%
-                 {5}{{\FormatDigit{5}}}{1}%
-                 {6}{{\FormatDigit{6}}}{1}%
-                 {7}{{\FormatDigit{7}}}{1}%
-                 {8}{{\FormatDigit{8}}}{1}%
-                 {9}{{\FormatDigit{9}}}{1}%
-                 {.0}{{\FormatDigit{.0}}}{2}% Following is to ensure that only periods
-                 {.1}{{\FormatDigit{.1}}}{2}% followed by a digit are changed.
-                 {.2}{{\FormatDigit{.2}}}{2}%
-                 {.3}{{\FormatDigit{.3}}}{2}%
-                 {.4}{{\FormatDigit{.4}}}{2}%
-                 {.5}{{\FormatDigit{.5}}}{2}%
-                 {.6}{{\FormatDigit{.6}}}{2}%
-                 {.7}{{\FormatDigit{.7}}}{2}%
-                 {.8}{{\FormatDigit{.8}}}{2}%
-                 {.9}{{\FormatDigit{.9}}}{2}%
-                 %{,}{{\FormatDigit{,}}{1}% depends if you want the "," in color
-                 {\ }{{ }}{1}% handle the space
-                 ,%
-    }
 
-    \lstset{%
+    \lstset{
       language = Octave,
       backgroundcolor=\color{white},   
       basicstyle=\footnotesize\ttfamily,       
       breakatwhitespace=false,         
       breaklines=true,                 
       captionpos=b,                   
-      commentstyle=\color{arduino_gray},    
-      deletekeywords={...},           
-      escapeinside={\%*}{*)},          
+      commentstyle=\color{arduino_gray},
+%      deletekeywords={...},
       extendedchars=true,              
       frame=single,                    
       keepspaces=true,                 
@@ -98,7 +70,7 @@
       rulesepcolor=\color{blue},
       showspaces=false,                
       showstringspaces=false,
-      showtabs=false,                  
+      showtabs=false,
       stepnumber=1,
       stringstyle=\color{orange},
       tabsize=2,                       
@@ -109,9 +81,9 @@
     %% language specific settings:
     \lstdefinestyle{Arduino}{%
         language = Octave,
-        keywords=[1]{void, digitalRead, digitalWrite, micros, millis, delay, delayMicroseconds},
-        keywords=[2]{if, else, while, for, do},%                 define keywords
-        keywords=[3]{HIGH, OUTPUT, LOW, INPUT, true, false, int, long, unsigned, float, bool, char, uint8_t, uint18_t, int8_t, uint16_t},
+        keywords=[1]{digitalRead, digitalWrite, micros, millis, delay, delayMicroseconds, pinMode, pow, sqrt},
+        keywords=[2]{if, else, while, for, do, return},%                 define keywords
+        keywords=[3]{HIGH, OUTPUT, LOW, INPUT, true, false, void, int, long, unsigned, float, bool, char, uint8_t, uint18_t, int8_t, uint16_t},
         morecomment=[l]{//},%             treat // as comments
         morecomment=[s]{/*}{*/},%         define /* ... */ comments
     }
@@ -140,7 +112,7 @@
 
     \subsection{Struttura generale}
     Il sistema è composto da un contenitore di materiale isolante con la faccia superiore di vetro trasparente che permette alla luce solare di irradiare energia all'interno. La luce solare viene inoltre riflessa da due specchi posti ai lati opposti della faccia superiore (in particolare il lato superiore e quello inferiore).\\
-    L'intera struttura è solidale ad una base girevole, controllata da un motore, che permette la regolazione dell'azimuth, mentre l'inclinazione di ogni specchio è regolata singolarmente in funzione dell'elevazione del sole.
+    L'intera struttura è solidale ad una base girevole, controllata da un motore, che permette la regolazione dell'azimut, mentre l'inclinazione di ogni specchio è regolata singolarmente in funzione dell'elevazione del sole.
     
     \begin{figure}[h]
     \centering
@@ -572,7 +544,37 @@ void write_byte (uint8_t byte_val) {
 }       \end{lstlisting}
         \end{changemargin}
         
-        \subsubsection{Calcolo gradiente}
+        \subsubsection{Edge detection}
+        Per determinare i contorni di una figura in un'immagine i sistemi di visione, solitamente, valutano la differenza di colore, o luminosità, tra pixel successivi, in quanto maggiore è tale differenza e più è netto il contorno composto da quei pixel.
+        
+        Matematicamente possiamo definire per una matrice $I$ $m \times n$, una seconda matrice $G$ di dimensioni $(m-2) \times (n-2)$ tale che:
+        \begin{equation}\label{edge_detection_equation}
+        \begin{split}
+            G_{y, x} = \sqrt{\left(I_{y, x} - I_{y, x+2}\right)^2 + \left( I_{y, x} - I_{y+2, x} \right)^2} \\
+            \forall \quad 1 \leq x \leq n-2 \qquad
+            1 \leq y \leq m-2
+        \end{split}
+        \end{equation} 
+        
+        Che, nel caso in cui $I$ rappresenti la luminosità dei pixel dell'immagine, equivale al modulo del vettore composto da due componenti ortogonali costituite, rispettivamente, dalla differenza di luminosità tra il pixel precedente-successivo (E-C) e superiore-inferiore (B-D) a quello considerato (A in figura).
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=130pt]{Draws/Edge_detection_pixel_label.png}
+            \caption{Disposizione pixel}
+        \end{figure}
+        
+        L'implementazione \footnote{Come del codice \ref{list:protocol_implementation} la variabile globale "matrix" rappresenta i pixel dell'immagine acquisita, mentre "gradient\_modules" conterrà il risultato del'operazione} di questa operazione è molto semplice, in quanto consiste solamente nel ciclare tra gli indici della matrice e applicare la formula (\ref{edge_detection_equation}).
+        \begin{changemargin}{-2cm}{-2cm}
+        \begin{lstlisting}[label={list:edge_detection_code}, style=Arduino, caption=Calcolo matrice edge-detection, basicstyle=\scriptsize]
+void calculate_gradient_matrix () {
+  for (int8_t y = 0; y < 16; y++) {
+    for (int8_t x = 0; x < 16; x++) {
+      gradient_modules[y][x] = sqrt(pow(matrix[y + 2][x + 1] - matrix[y][x + 1], 2) + pow(matrix[y + 1][x + 2] - matrix[y + 1][x], 2)) + 0.5;
+    }
+  }
+}       \end{lstlisting}
+        \end{changemargin}
         
         
         \subsubsection{Discesa del gradiente}

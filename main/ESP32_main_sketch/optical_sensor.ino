@@ -8,7 +8,7 @@ void getImageMatrix() {
   while (i < 18 * 18) {
     delayMicroseconds(1);
     yield();
-    byte data = read(0x08);
+    uint8_t data = read(0x08);
 //    println_full_bin(data);
     if (data & 0b01000000) {
       matrix[i/18][i%18] = data;

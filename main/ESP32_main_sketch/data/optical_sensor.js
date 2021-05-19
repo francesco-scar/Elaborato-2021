@@ -157,10 +157,12 @@ function display_sun_center() {
     drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, progressive_approximations[3*slider_val+2]*pixel_size, '', '#00ff00', 3);
     drawCircle(ctx, canvas.width/2 + progressive_approximations[3*slider_val]*pixel_size, canvas.height/2 + progressive_approximations[3*slider_val+1]*pixel_size, 4, '#00ff00', '#00ff00', 3);
     loop_label.className = '';
+    document.getElementById('animation_loop_cycle').disabled = false;
     animation_checkbox.disabled = false;
   } else {
     slider.disabled = true;
     loop_label.className = 'disabled';
+    document.getElementById('animation_loop_cycle').disabled = true;
     animation_checkbox.disabled = true;
     clearInterval(last_animation_interval);
   }
@@ -169,12 +171,14 @@ function display_sun_center() {
 function loop_sun_center_animation() {
   if (document.getElementById('loop_sun_center_animation').checked && document.getElementById('display_sun_center').checked) {
     last_animation_interval = setInterval(() => {
-      document.getElementById('sun_center_slider').value = (Number(document.getElementById('sun_center_slider').value) + 1 ) % 256;
+      document.getElementById('sun_center_slider').value = (Number(document.getElementById('sun_center_slider').value) + 1 ) % Number(document.getElementById('animation_loop_cycle').value);
       document.getElementById('sun_center_label').innerText = document.getElementById('sun_center_slider').value;
       main_image_drawing_handler();
     }, 50);
+    document.getElementById('animation_loop_cycle').disabled = false;
   } else {
     clearInterval(last_animation_interval);
+    document.getElementById('animation_loop_cycle').disabled = true;
   }
 }
 

@@ -34,11 +34,12 @@
     \usepackage{graphicx}
     \usepackage[hidelinks]{hyperref}
     
-    \definecolor{mygreen}{rgb}{0,0.6,0}
-    \definecolor{mygray}{rgb}{0.47,0.47,0.33}
-    \definecolor{myorange}{rgb}{0.8,0.4,0}
-    \definecolor{mywhite}{rgb}{0.98,0.98,0.98}
-    \definecolor{myblue}{rgb}{0.01,0.61,0.98}
+    \renewcommand{\lstlistingname}{Codice}
+
+    \definecolor{arduino_orange}{RGB}{206, 83, 1}
+    \definecolor{arduino_green}{RGB}{89, 102, 6}
+    \definecolor{arduino_blue}{RGB}{0, 150, 155}
+    \definecolor{arduino_gray}{RGB}{170, 170, 170}
     
 
     \newcommand*{\FormatDigit}[1]{\ttfamily\textcolor{mygreen}{#1}}
@@ -69,45 +70,52 @@
                  ,%
     }
 
-
     \lstset{%
-      backgroundcolor=\color{mywhite},   
-      basicstyle=\footnotesize,       
+      language = Octave,
+      backgroundcolor=\color{white},   
+      basicstyle=\footnotesize\ttfamily,       
       breakatwhitespace=false,         
       breaklines=true,                 
       captionpos=b,                   
-      commentstyle=\color{gray},    
+      commentstyle=\color{arduino_gray},    
       deletekeywords={...},           
       escapeinside={\%*}{*)},          
       extendedchars=true,              
       frame=single,                    
       keepspaces=true,                 
-      keywordstyle=\color{myorange},       
-      language=c++,                
-      morekeywords={*,...},            
-      numbers=left,                   
-      numberstyle=\tiny\color{mygray}, 
+      keywordstyle=[1]\color{arduino_orange},
+      keywordstyle=[2]\color{arduino_green},
+      keywordstyle=[3]\color{arduino_blue},
+      %morekeywords={*,...},            
+      numbers=left,
+      numbersep=5pt,                   
+      numberstyle=\footnotesize\color{gray}, 
       rulecolor=\color{black},         
-      rulesepcolor=\color{myblue},
+      rulesepcolor=\color{blue},
       showspaces=false,                
-      showstringspaces=false,          
-      showtabs=false
-      stringstyle=\color{green},    
-      tabsize=2,
-      emphstyle=\bfseries\color{blue},%  style for emph={} 
-    }    
+      showstringspaces=false,
+      showtabs=false,                  
+      stepnumber=1,
+      stringstyle=\color{orange},
+      tabsize=2,                       
+      title=\lstname,
+%      emphstyle=\bfseries\color{blue}%  style for emph={} 
+    } 
 
     %% language specific settings:
     \lstdefinestyle{Arduino}{%
-        style=FormattedNumber,
-        keywords={void},%                 define keywords
+        language = Octave,
+        keywords=[1]{void, digitalRead, digitalWrite, micros, millis, delay, delayMicroseconds},
+        keywords=[2]{if, else, while, for, do},%                 define keywords
+        keywords=[3]{HIGH, OUTPUT, LOW, INPUT, true, false, int, long, unsigned, float, bool},
         morecomment=[l]{//},%             treat // as comments
         morecomment=[s]{/*}{*/},%         define /* ... */ comments
-        emph={HIGH, OUTPUT, LOW},%        keywords to emphasize
     }
 
     \newtoggle{InString}{}% Keep track of if we are within a string
     \togglefalse{InString}% Assume not initally in string
+
+
 \begin{document}
 
 
@@ -392,7 +400,7 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
     \end{equation}
     
     \vspace{1cm}
-    
+     
     \noindent
     Infine, nota tale distanza, è possibile calcolare la rotazione del motore per portarlo alla posizione voluta, ma è necessario conoscere anche la posizione attuale assoluta dello specchio, per questo motivo è necessario un finecorsa che all'accensione permetta al controllore di avere un riferimento assoluto (analoga alla procedura di homing per le macchine a controllo numerico).
 
@@ -401,6 +409,98 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
 
     \subsection{Analisi funzioni principali}
         \subsubsection{Controllo accelerazione motori}
+        Il driver A4988 permette il controllo della rotazione dei motori mediante un segnale di direzione e uno di step: ogni fronte di salita del segnale di step comporta un incremento della posizione del motore nella direzione selezionata dal segnale di direzione, tale incremento dipende, oltre che dalle caratteristiche strutturali del motore in questione, dal rapporto di micro-stepping.\\
+        La rotazione è quindi composta da brevi scatti successivi, maggiore è il numero di microstep per step e maggiore sarà la fluidità del movimento.\\
+        Un semplice controllo ON-OFF, con accesione dei motori direttamente ad una velocità definita e costante, provoca elevate accelerazioni che portano ad una maggiore usura dei componenti meccanici, oltre che possibili oscillazioni attorno alla posizione desiderata, per questo motivo risulta opportuno variare la velocità grazualmente per ottenere accelerazioni e decelerazioni costanti.\\
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=\textwidth-100pt]{Draws/Motors_s-v-a_block.png}
+            \caption{Andamento steps nel tempo}
+            \label{Steps_velocity_acceleration_in_time}
+        \end{figure}
+        
+        \noindent
+        L'andamento nel tempo mostrato in figura \ref{Steps_velocity_acceleration_in_time} può essere suddiviso in 3 fasi: una iniziale di accelerazione (ad accelerazione costante), un'eventuale fase centrale a velocità costante ed una finale di decelerazione (con accelerazione costante e opposta a quella iniziale).\\
+        
+        \noindent
+        Ricordando le equazioni del moto uniformemente accelerato, si ha:
+        \begin{equation}
+            s(t) = s_0 + v_0 \cdot t + \frac{1}{2} \cdot a \cdot t^2
+        \end{equation}
+        \begin{equation}
+            v(t) = v_0 + a \cdot t
+        \end{equation}       
+        
+
+        \vspace{0.1cm}
+        \noindent
+        Una possibile implementazione per il microcontrollore in considerazione può essere la seguente.
+        
+        
+        \begin{changemargin}{-2cm}{-2cm}
+        \begin{lstlisting}[label={list:motor_speed_control}, style=Arduino, caption=Controllo velocità motori, basicstyle=\scriptsize]
+void move_stepper (long n_steps, float speed, float acceleration, int dir_pin, int step_pin, int enable_pin) {    // speed in steps/s, acceleration in steps/s^2
+  if (n_steps < 0) {
+    digitalWrite(dir_pin, HIGH);
+  } else {
+    digitalWrite(dir_pin, LOW);
+  }
+
+  unsigned long t_offset = micros();
+  unsigned long t;
+  unsigned long acceleration_limit_steps = 0.5 * speed * speed / acceleration + 0.5;
+  bool acceleration_phase = true;
+  bool constant_phase = false;
+  bool deceleration_phase = false;
+  bool condition;
+
+  if (acceleration_limit_steps > abs(n_steps) / 2) {
+    acceleration_limit_steps = abs(n_steps) / 2;
+    speed = sqrt(2 * acceleration_limit_steps * acceleration);
+  }
+
+  digitalWrite(enable_pin, LOW);
+  for (long microsteps = 0; microsteps < abs(n_steps)*MICROSTEPPING_RATIO; microsteps++){
+    do {
+      t = micros();
+      if (constant_phase) {
+        condition = ((microsteps / MICROSTEPPING_RATIO - acceleration_limit_steps) * 1000 > speed * (t - t_offset) / 1000.0);
+      } else if (acceleration_phase) {
+        condition = (microsteps * 1000000.0 / MICROSTEPPING_RATIO > 0.5 * acceleration * ((t - t_offset) / 1000.0) * ((t - t_offset) / 1000.0));
+      } else if (deceleration_phase) {
+        condition = (((microsteps / MICROSTEPPING_RATIO - (abs(n_steps) - acceleration_limit_steps)) * 1000000) > (speed * (t - t_offset) - 0.5 * acceleration * ((t - t_offset) / 1000.0) * ((t - t_offset) / 1000.0)));
+        if (condition) {
+          if (t - t_offset > speed / acceleration * 1000000) {
+            condition = false;
+          }
+        }
+      }
+    } while (condition);
+    digitalWrite(step_pin, HIGH);
+    delayMicroseconds(2);      // Pulse must be at least 1us (from A4988 datasheet)
+    digitalWrite(step_pin, LOW);
+    delayMicroseconds(1);      // Pulse must be at least 1us (from A4988 datasheet)
+    if (constant_phase) {
+      if (microsteps / MICROSTEPPING_RATIO >= abs(n_steps) - acceleration_limit_steps) {
+        constant_phase = false;
+        deceleration_phase = true;
+        t_offset = micros();
+      }
+    } else if (acceleration_phase) {
+      if (microsteps / MICROSTEPPING_RATIO >= acceleration_limit_steps) {
+        acceleration_phase = false;
+        constant_phase = true;
+        t_offset = micros();
+      }
+    }
+  }
+  if (disable_motor) {
+    digitalWrite(enable_pin, HIGH);
+  }
+}       \end{lstlisting}
+        \end{changemargin}
+        
         \subsubsection{Protocollo sensore ottico}\label{adns2610_protocol}
         \subsubsection{Calcolo gradiente}
         

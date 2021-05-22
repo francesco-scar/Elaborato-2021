@@ -56,8 +56,7 @@ bool circle_border () {
 void calculate_gradient_matrix () {
   for (int8_t y = 0; y < 16; y++) {
     for (int8_t x = 0; x < 16; x++) {
-      gradient_modules[x][y] = sqrt(pow(matrix[x + 2][y + 1] - matrix[x][y + 1], 2) + pow(matrix[x + 1][y + 2] - matrix[x + 1][y], 2)) + 0.5;
-      //      Serial.println(String(x) + ", " + String(y) + " : " + String(pow(matrix[x + 2][y + 1] - matrix[x][y + 1], 2)) + ", " + String(pow(matrix[x + 1][y + 2] - matrix[x + 1][y], 2)) + "   -->  " + String(gradient_modules[x][y]));
+      gradient_modules[y][x] = sqrt(pow(matrix[y + 2][x + 1] - matrix[y][x + 1], 2) + pow(matrix[y + 1][x + 2] - matrix[y + 1][x], 2)) + 0.5;
     }
   }
 }

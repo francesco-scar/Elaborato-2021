@@ -415,7 +415,7 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         
         \begin{changemargin}{-2cm}{-2cm}
         \begin{lstlisting}[label={list:motor_speed_control}, style=Arduino, caption=Controllo velocità motori, basicstyle=\scriptsize]
-void move_stepper (long n_steps, float speed, float acceleration, int dir_pin, int step_pin, int enable_pin) {    // speed in steps/s, acceleration in steps/s^2
+long move_stepper (long n_steps, float speed, float acceleration, int dir_pin, int step_pin, int enable_pin, int endstop) {    // speed in steps/s, acceleration in steps/s^2
   if (n_steps < 0) {
     digitalWrite(dir_pin, HIGH);
   } else {
@@ -452,22 +452,30 @@ void move_stepper (long n_steps, float speed, float acceleration, int dir_pin, i
         }
       }
     } while (condition);
-    digitalWrite(step_pin, HIGH);
-    delayMicroseconds(2);      // Pulse must be at least 1us (from A4988 datasheet)
-    digitalWrite(step_pin, LOW);
-    delayMicroseconds(1);      // Pulse must be at least 1us (from A4988 datasheet)
-    if (constant_phase) {
-      if (microsteps / MICROSTEPPING_RATIO >= abs(n_steps) - acceleration_limit_steps) {
-        constant_phase = false;
-        deceleration_phase = true;
-        t_offset = micros();
+    
+    if (!digitalRead(endstop)) {
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(2);      // Pulse must be at least 1us (from A4988 datasheet)
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(1);      // Pulse must be at least 1us (from A4988 datasheet)
+      if (constant_phase) {
+        if (microsteps / MICROSTEPPING_RATIO >= abs(n_steps) - acceleration_limit_steps) {
+          constant_phase = false;
+          deceleration_phase = true;
+          t_offset = micros();
+        }
+      } else if (acceleration_phase) {
+        if (microsteps / MICROSTEPPING_RATIO >= acceleration_limit_steps) {
+          acceleration_phase = false;
+          constant_phase = true;
+          t_offset = micros();
+        }
       }
-    } else if (acceleration_phase) {
-      if (microsteps / MICROSTEPPING_RATIO >= acceleration_limit_steps) {
-        acceleration_phase = false;
-        constant_phase = true;
-        t_offset = micros();
+    } else {
+      if (disable_motor) {
+        digitalWrite(enable_pin, HIGH);
       }
+      return microsteps;
     }
   }
   if (disable_motor) {
@@ -544,7 +552,7 @@ void write_byte (uint8_t byte_val) {
 }       \end{lstlisting}
         \end{changemargin}
         
-        \subsubsection{Edge detection}
+        \subsubsection{Edge detection}\label{edge_detection}
         Per determinare i contorni di una figura in un'immagine i sistemi di visione, solitamente, valutano la differenza di colore, o luminosità, tra pixel successivi, in quanto maggiore è tale differenza e più è netto il contorno composto da quei pixel.
         
         Matematicamente possiamo definire per una matrice $I$ $m \times n$, una seconda matrice $G$ di dimensioni $(m-2) \times (n-2)$ tale che:
@@ -578,17 +586,14 @@ void calculate_gradient_matrix () {
         
         
         \subsubsection{Discesa del gradiente}
-        Per ottenere il centro dell'immagine del sole, che approssimiamo ad un cerchio, è sufficiente trovare la circonferenza che meglio approssima il contorno esterno del cerchio, definito dai punti con maggiore modulo del gradiente, ovvero in cui si ha una differenza netta tra pixels successivi. \\
-        A tal fine si deve minimizzare la distanza geometrica tra la circonferenza e i punti con magiore modulo del gradiente; tale distanza è schematizzata nella seguente figura con il tratto $ e $.
-        
-        \begin{center}
-        \includegraphics[
-            page=1,
-            width=220pt,
-            height=\textheight,
-            keepaspectratio
-        ]{Draws/Discesa_del_gradiente_cerchio-punto.pdf}
-        \end{center}
+        Per ottenere il centro dell'immagine del sole, che approssimiamo ad un cerchio, è sufficiente trovare la circonferenza che meglio approssima il contorno esterno del cerchio, definito dai punti in cui si ha una differenza più netta tra pixels successivi. \\
+        A tal fine si deve minimizzare la distanza geometrica tra la circonferenza e i punti con magiore modulo del vettore trattato nella sezione \ref{edge_detection}; tale distanza è schematizzata nella seguente figura con il tratto $ e $.
+
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=220pt]{Draws/Discesa_del_gradiente_cerchio-punto.png}
+            \caption{Distanza punto - circonferenza}
+        \end{figure}
         
         \noindent
         Applicando il teorema di pitagora, per differenza, si ottiene che la distanza $ e $ è definita in funzione delle coordinate del centro e del punto in questione, secondo la relazione
@@ -597,23 +602,25 @@ void calculate_gradient_matrix () {
         \end{equation}
         
         \noindent
-        Possiamo quindi definire la seguente funzione
+        Possiamo quindi definire la seguente funzione\footnote{Per semplicità di seguito si assume che per una matrice $m \times n$ gli indici degli elementi assumano valori partendo da 0, ad esempio l'elemento della prima riga e colonna sarà $G_{0,0}$, mentre l'elemento dell'ultima riga e colonna sarà $G_{m-1, n-1}$. Questo perché nella maggior parte dei linguaggi di programmazione l'indice del primo elemento di un array è proprio 0.}
         \begin{equation}
-            f(x, y, r) = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ g(x_p, y_p) \cdot \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right| \right] 
+            f(x, y, r) = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ G_{y_p, x_p} \cdot \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right| \right] 
         \end{equation}
         
         \noindent
-        in cui la funzione $ g(x_p, y_p) $ rappresenta il modulo del gradiente dell'immagine del punto $ (x_p, y_p) $, ed è quindi un coefficiente reale. Tale sommatoria risulta quindi una somma ponderata delle distanze tra la circonferenza in considerazione e tutti i punti della matrice discussa alla sezione precedente. Il modulo del gradiente sarà maggiore per i punti sul contorno dell'immagine del sole, che quindi avranno un peso maggiore rispetto agli altri punti.\\
-        Calcoliamo quindi le derivate parziali di $ f(x, y, r) $ rispetto alle tre variabili
+        in cui la matrice $ G_{y_p, x_p} $ rappresenta il modulo del gradiente dell'immagine del punto $ (x_p, y_p) $, come trattato nella sezione \ref{edge_detection}, ed è quindi un coefficiente reale. Tale sommatoria risulta quindi una somma ponderata delle distanze tra la circonferenza in considerazione e tutti i punti della matrice discussa alla sezione precedente. Il modulo del gradiente sarà maggiore per i punti sul contorno dell'immagine del sole, che quindi avranno un peso maggiore rispetto agli altri punti.\\
+        
+        \vspace{1cm}
+        Calcoliamo quindi le derivate parziali di $ f(x, y, r) $ rispetto alle tre variabili (non essendovi uno standard univoco, di seguito si è scelto di utilizzare la notazione di Leibniz per indicare derivate e derivate parziali)
         
         \begin {equation}
-            \frac{\partial f}{\partial x} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ g(x_p, y_p) \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{x - x_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
+            \frac{\partial f}{\partial x} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ G_{y_p, x_p} \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{x - x_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
         \end {equation}
         \begin {equation}
-            \frac{\partial f}{\partial y} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ g(x_p, y_p) \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{y - y_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
+            \frac{\partial f}{\partial y} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ G_{y_p, x_p} \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{y - y_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
         \end {equation}
         \begin {equation}
-            \frac{\partial f}{\partial r} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ - g(x_p, y_p) \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \right] 
+            \frac{\partial f}{\partial r} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ - G_{y_p, x_p} \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \right] 
         \end {equation}
         
         \noindent
@@ -627,6 +634,13 @@ void calculate_gradient_matrix () {
                 \end{cases}
         \end {equation}
         
+        
+        Definiamo il gradiente calcolato in un punto $(x_0, y_0, r_0)$ di una funzione $f(x)$ come la seguente funzione vettoriale
+        
+        \begin{equation}
+            \nabla f (x_0, y_0, r_0) = \left( \frac{\partial f}{\partial x} \bigg\rvert_{x = x_0}, \frac{\partial f}{\partial y} \bigg\rvert_{y = y_0}, \frac{\partial f}{\partial r} \bigg\rvert_{r = r_0} \right)
+        \end{equation}
+
 
 \/*
     \begin{changemargin}{-1cm}{-1cm}

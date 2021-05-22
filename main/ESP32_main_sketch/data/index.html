@@ -7,6 +7,55 @@
   </head>
   <body style="text-align: center">
     <div id="demo">
+    
+      <div>
+        <table style="width: 100%; height: auto">
+          <tbody>
+            <tr>
+              <td style="width: 50%; height: auto">
+                <canvas id="canvas_reflection" width="630" height="600" style="border:1px solid #ccc;">
+                Your browser does not support the canvas element.
+                </canvas>
+              </td>
+              <td>
+                <table style="width: 80%">
+                <!--<td style="width: 50%; height: auto">-->
+                  <tr style="height: 100px">
+                    <td>
+                      <label>Rays: </label><label id="rays_label">0</label> <input type="range" min="2" max="25" value="5" class="slider" id="rays_slider" oninput="main_reflection_drawing_handler()">
+                    </td>
+                  </tr>
+                  <tr style="height: 100px">
+                    <td>
+                      <label>Base: </label><label id="base_label">0</label><label> cm</label> <input type="range" min="20" max="60" value="60" class="slider" id="base_slider" oninput="main_reflection_drawing_handler()">
+                    </td>
+                  </tr>
+                  <tr style="height: 100px">
+                    <td>
+                      <label>Mirror: </label><label id="mirror_label">0</label><label> cm</label> <input type="range" min="20" max="60" value="60" class="slider" id="mirror_slider" oninput="main_reflection_drawing_handler()">
+                    </td>
+                  </tr>
+                  <tr style="height: 100px">
+                    <td>
+                      <label>Sun angle: </label><label id="sun_angle_label">0</label><label>°</label> <input type="range" min="-90" max="90" value="0" class="slider" id="sun_angle_slider" oninput="main_reflection_drawing_handler()">
+                      Loop:</label> <input type="checkbox" id="loop_sun_angle_animation" onchange="loop_sun_angle_animation()">
+                    </td>
+                  </tr>
+                  <tr style="width: 100px">
+                    <td>
+                      O1 = <label id="o1"></label> °
+                      <br>
+                      O2 = <label id="o2"></label> °
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      
       <div>
         <table style="width: 100%; height: auto">
           <tbody>
@@ -51,6 +100,8 @@
           </tbody>
         </table>
       </div>
+      
+      
       <div>
         <table style="width: 100%; height: auto">
           <tbody>
@@ -111,6 +162,7 @@
     </div>
     
     <script type="text/javascript" src="general_functions.js"></script>
+    <script type="text/javascript" src="reflection_simulation.js"></script>
     <script type="text/javascript" src="optical_sensor.js"></script>
     <script type="text/javascript" src="motors_control.js"></script>
   </body>

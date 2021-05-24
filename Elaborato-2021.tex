@@ -585,6 +585,16 @@ void calculate_gradient_matrix () {
         \end{changemargin}
         
         
+        Nella seguente immagine si può osservare l'applicazione tale algoritmo ad una immagine acquisita dal sensore.
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=300pt]{Draws/default_image-gradient.png}
+            \caption{Edge-detection su immagine acquisita dal sensore}
+            \label{edge-detection_image_comparison}
+        \end{figure}
+        
+        
         \subsubsection{Discesa del gradiente}
         Per ottenere il centro dell'immagine del sole, che approssimiamo ad un cerchio, è sufficiente trovare la circonferenza che meglio approssima il contorno esterno del cerchio, definito dai punti in cui si ha una differenza più netta tra pixels successivi. \\
         A tal fine si deve minimizzare la distanza geometrica tra la circonferenza e i punti con magiore modulo del vettore trattato nella sezione \ref{edge_detection}; tale distanza è schematizzata nella seguente figura con il tratto $ e $.
@@ -608,7 +618,38 @@ void calculate_gradient_matrix () {
         \end{equation}
         
         \noindent
-        in cui la matrice $ G_{y_p, x_p} $ rappresenta il modulo del gradiente dell'immagine del punto $ (x_p, y_p) $, come trattato nella sezione \ref{edge_detection}, ed è quindi un coefficiente reale. Tale sommatoria risulta quindi una somma ponderata delle distanze tra la circonferenza in considerazione e tutti i punti della matrice discussa alla sezione precedente. Il modulo del gradiente sarà maggiore per i punti sul contorno dell'immagine del sole, che quindi avranno un peso maggiore rispetto agli altri punti.\\
+        in cui la matrice $ G_{y_p, x_p} $ rappresenta il modulo del gradiente dell'immagine del punto $ (x_p, y_p) $, come trattato nella sezione \ref{edge_detection}, ed è quindi un coefficiente reale. Tale sommatoria risulta quindi una somma ponderata delle distanze tra la circonferenza in considerazione e tutti i punti della matrice discussa alla sezione precedente. Il modulo del gradiente sarà maggiore per i punti sul contorno dell'immagine del sole, che quindi avranno un peso maggiore rispetto agli altri.\\
+        
+        Il problema risulta quindi equivalente alla ricerca del minimo di tale funzione, per questo scopo può essere utile considerare il caso più semplice di una funzione ad una sola variabile.
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=\textwidth]{Draws/matplotlib_draws/2d_descent_block.png}
+            \caption{Ricerca minimo - 2D}
+            \label{2d_min_search}
+        \end{figure}
+        
+        Nell'immagine \ref{2d_min_search} si osserva la funzione rappresentativa dell'errore al variare della variabile $r$, fissati $x$ e $y$, nel caso dell'immagine rappresentata in figura \ref{edge-detection_image_comparison}, mentre la retta rossa indica la tangente alla curva. Si osservi che, partendo da un punto iniziale sulla curva, è possibile individuare un minimo locale variando l'ascissa corrente di un valore $-k \cdot f'(r)$, con $k$ scelto opportunamente (e positivo), e iterando questo procedimento fino ad ottenere l'approssimazione desiderata.\\
+        
+        È possibile applicare lo stesso algoritmo per una funzione in due variabili, rappresentabile come una superficie in uno spazio tridimensionale.
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=250pt]{Draws/matplotlib_draws/3d_descent_base_cut.png}
+            \caption{Ricerca minimo - 3D}
+            \label{3d_min_search}
+        \end{figure}
+        
+        In cui il minimo può essere trovato nuovamente iterando più volte un procedimento analogo al precedente, considerando entrambe le derivate parziali della funzione.\\
+        
+        Nella situazione in questione i le variabili sono tre, $x$, $y$ e $r$, per cui la funzione può essere rappresentata geometricamente in uno spazio a 4 dimensioni, che associa ad ogni punto dello spazio tridimensionale un valore proporzionale all'errore, per questo motivo possiamo rappresentare il valore assunto dalla funzione mediante una scala cromatica e visualizzarne l'andamento.
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=\textwidth-30pt]{Draws/matplotlib_draws/4d_descent_volume_block.png}
+            \caption{Ricerca minimo - 4D}
+            \label{4d_min_search}
+        \end{figure}
         
         \vspace{1cm}
         Calcoliamo quindi le derivate parziali di $ f(x, y, r) $ rispetto alle tre variabili (non essendovi uno standard univoco, di seguito si è scelto di utilizzare la notazione di Leibniz per indicare derivate e derivate parziali)
@@ -640,6 +681,15 @@ void calculate_gradient_matrix () {
         \begin{equation}
             \nabla f (x_0, y_0, r_0) = \left( \frac{\partial f}{\partial x} \bigg\rvert_{x = x_0}, \frac{\partial f}{\partial y} \bigg\rvert_{y = y_0}, \frac{\partial f}{\partial r} \bigg\rvert_{r = r_0} \right)
         \end{equation}
+        
+        
+        Ad ogni iterazione dell'algoritmo si otterrà uno spostamento proporzionale a tale vettore, per cui alla $i$-esima ripetizione si avrà:
+         
+        \begin{equation}
+            (x_i, y_i, r_i) = (x_{i-1}, y_{i-1}, r_{i-1}) - k \cdot \nabla f (x_{i-1}, y_{i-1}, r_{i-1}) \qquad con \quad k > 0
+        \end{equation}
+        
+        Essendo un algoritmo euristico esso non garantisce di trovare con esattezza un punto di minimo, ma una sua approssimazione (che per il caso in esame è più che sufficiente); inoltre il punto trovato è un minimo locale, ma non è garantito che sia un minimo assoluto, come mostrato nell'immagine \ref{}, per questo può essere opportuno ripetere il procedimento scegliendo diversi punti di partenza, oppure approssimare il centro con altri metodi e utilizzare il valore trovato come punto iniziale (quest'ultimo metodo risulta particolarmente efficace e può essere realizzato con una media ponderata delle coordinate dei pixel dell'immagine, pesati sulla loro luminosità).
 
 
 \/*

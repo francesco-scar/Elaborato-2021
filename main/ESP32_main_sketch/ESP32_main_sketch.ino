@@ -4,7 +4,7 @@
 //#include <ESPmDNS.h>
 #include "secrets.h"
 
-//#define DEFAULT_MATRIX_TEST
+#define DEFAULT_MATRIX_TEST
 
 #define FORMAT_FILESYSTEM false
 #include <SPIFFS.h>

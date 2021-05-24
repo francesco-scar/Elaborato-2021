@@ -690,14 +690,49 @@ void calculate_gradient_matrix () {
         \end{equation}
         
         Essendo un algoritmo euristico esso non garantisce di trovare con esattezza un punto di minimo, ma una sua approssimazione (che per il caso in esame è più che sufficiente); inoltre il punto trovato è un minimo locale, ma non è garantito che sia un minimo assoluto, come mostrato nell'immagine \ref{}, per questo può essere opportuno ripetere il procedimento scegliendo diversi punti di partenza, oppure approssimare il centro con altri metodi e utilizzare il valore trovato come punto iniziale (quest'ultimo metodo risulta particolarmente efficace e può essere realizzato con una media ponderata delle coordinate dei pixel dell'immagine, pesati sulla loro luminosità).
+        
+        \begin{figure}[h]
+        \centering
+            \includegraphics[width=\textwidth-30pt]{Draws/matplotlib_draws/double_min_block.png}
+            \caption{Minimo locale e minimo assoluto}
+            \label{double_min}
+        \end{figure}
+        
+        Il minimo locale e il minimo assoluto corrispondono rispettivemente alla circonferenza mostrata nell'immagine di destra e di sinistra.
 
+        Un possibile esempio di implementazione è il seguente\footnote{Come per le porzioni di codice precedenti, esso fa riferimento a costanti e variabili globali non riportate in questo documento.}.
+        
+        \begin{changemargin}{-2cm}{-2cm}
+        \begin{lstlisting}[label={list:edge_detection_code}, style=Arduino, caption=Ricerca minimi - discesa del gradiente, basicstyle=\scriptsize]
+void gradient_descent (float x, float y, float r, uint16_t iterations) {
+  for (uint16_t recurse_n = 0; recurse_n < iterations; recurse_n++) {
+    float dx = 0.0, dy = 0.0, dr = 0.0;
+    for (uint8_t y_p = 0; y_p < 16; y_p++) {
+      for (uint8_t x_p = 0; x_p < 16; x_p++) {
+        if (gradient_modules[y_p][x_p] > GRADIENT_THRESHOLD) {
+          float x_diff = x_p - x;
+          float y_diff = y_p - y;
+          float x_diff_2 = pow(x_diff, 2);
+          float y_diff_2 = pow(y_diff, 2);
+          if ((x_diff_2 + y_diff_2) == 0) {
+            continue;
+          }
+          dx -= (gradient_modules[y_p][x_p] - GRADIENT_THRESHOLD) * SGN(sqrt(x_diff_2 + y_diff_2) - r) * x_diff / sqrt(x_diff_2 + y_diff_2);
+          dy -= (gradient_modules[y_p][x_p] - GRADIENT_THRESHOLD) * SGN(sqrt(x_diff_2 + y_diff_2) - r) * y_diff / sqrt(x_diff_2 + y_diff_2);
+          dr -= (gradient_modules[y_p][x_p] - GRADIENT_THRESHOLD) * SGN(sqrt(x_diff_2 + y_diff_2) - r);
+        }
+      }
+    }
 
-\/*
-    \begin{changemargin}{-1cm}{-1cm}
-
-    \lstinputlisting{Sketch_simulazione_elaborato_serra/Sketch_simulazione_elaborato_serra.ino}
-    \end{changemargin}
-*/    
+    x -= dx * K;
+    y -= dy * K;
+    r -= dr * K;
+    progressive_approximations[recurse_n * 3] = x - 7.5;
+    progressive_approximations[recurse_n * 3 + 1] = y - 7.5;
+    progressive_approximations[recurse_n * 3 + 2] = r;
+  }
+}       \end{lstlisting}
+        \end{changemargin}
   
    
     \vfill

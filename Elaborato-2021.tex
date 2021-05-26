@@ -83,7 +83,7 @@
     %% language specific settings:
     \lstdefinestyle{Arduino}{%
         language = Octave,
-        keywords=[1]{digitalRead, digitalWrite, micros, millis, delay, delayMicroseconds, pinMode, pow, sqrt},
+        keywords=[1]{digitalRead, digitalWrite, micros, millis, delay, delayMicroseconds, pinMode, pow, sqrt, abs},
         keywords=[2]{if, else, while, for, do, return},%                 define keywords
         keywords=[3]{HIGH, OUTPUT, LOW, INPUT, true, false, void, int, long, unsigned, float, bool, char, uint8_t, uint18_t, int8_t, uint16_t},
         morecomment=[l]{//},%             treat // as comments
@@ -367,9 +367,18 @@ Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quand
     
     Infine, nota tale distanza, è possibile calcolare la rotazione del motore per portarlo alla posizione voluta, ma è necessario conoscere anche la posizione attuale assoluta dello specchio, per questo motivo è necessario un finecorsa che all'accensione permetta al controllore di avere un riferimento assoluto (analoga alla procedura di homing per le macchine a controllo numerico).
 
+\newpage
 \section{Algoritmo}
     \subsection{Diagramma di flusso generale}
-
+        \subsubsection{Setup}
+            \begin{figure}[h]
+            \centering
+                \includegraphics[height=\textheight-145pt]{Draws/Flowchart/Setup.png}
+                \label{setup_flowchart}
+            \end{figure}
+        
+        \subsubsection{Loop}
+        
     \subsection{Analisi funzioni principali}
         \subsubsection{Controllo accelerazione motori}
         Il driver A4988 permette il controllo della rotazione dei motori mediante un segnale di direzione e uno di step: ogni fronte di salita del segnale di step comporta un incremento della posizione del motore nella direzione selezionata dal segnale di direzione, tale incremento dipende, oltre che dalle caratteristiche strutturali del motore in questione, dal rapporto di micro-stepping.\\

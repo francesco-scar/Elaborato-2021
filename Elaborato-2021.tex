@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-    \title{\textbf{Monitoraggio temperatura forno solare e controllo automatico orientamento specchi}}
+    \title{\textbf{Controllo automatico orientamento specchi forno solare}}
     \author{Scar. Francesco}
     \date{}
     \addtolength{\topmargin}{-2cm}
@@ -37,8 +37,10 @@
     \usepackage{graphicx}
     \usepackage[hidelinks]{hyperref}
     \usepackage[hang,flushmargin]{footmisc}
+    \usepackage{setspace}
     
     \renewcommand{\lstlistingname}{Codice}
+%    \renewcommand{\baselinestretch}{1.35}
 
     \definecolor{arduino_orange}{RGB}{206, 83, 1}
     \definecolor{arduino_green}{RGB}{89, 102, 6}
@@ -97,11 +99,12 @@
 
 \maketitle
 
+\setstretch{1}
 \tableofcontents{}
 
-\newpage
+\setstretch{1.3}
 
-%\vfill
+\newpage
 
 
 \section{Introduzione}
@@ -116,39 +119,33 @@
     
     \begin{figure}[h]
     \centering
-        \includegraphics[width=380pt]{Draws/3D_render_cut.png}
+        \includegraphics[width=\textwidth-100pt]{Draws/3D_render_cut.png}
         \caption{Modello generico struttura di base}
     \end{figure}
     
+    \vfill
+
+
 \section{Schema a blocchi}
 
+\begin{figure}[h]
+\centering
+    \includegraphics[width=\textwidth-30pt]{Draws/Block_diagram.png}
+    \caption{Schema a blocchi}
+\end{figure}
 
-\noindent
-\includegraphics[
-    page=1,
-    width=\textwidth,
-    height=\textheight,
-    keepaspectratio
-]{Draws/Block_diagram.pdf}
+I pin indicati a destra nel diagramma (GPIO25, GPIO32, GPIO33, GPIO13, GPIO12, GPIO14, GPIO19, GPIO18 e GPIO5) sono uscite, mentre i pin indicati a sinistra (GPIO23, GPIO0, GPIO15, GPIO2, GPIO4, GPIO25) sono input, unica eccezione il GPIO 22, che, come trattato in seguito nella sezione \ref{adns2610_protocol}, per la natura del protocollo seriale implementato dal sensore ADNS2610 richiede la possibilità di scambiare dati in modo bidirezionale. Tutti gli ingressi e le uscite utilizzate sono digitali, fatta eccezione del GPIO25 che è collegato internamente ad un ADC a 12 bit integrato nel ESP-32 (per cui non sono necessari ulteriori componenti esterni per effettuare la conversione).\\
+Tutti i componenti direttamente utilizzati dall'ESP-32 sono compatibili con la logica 0V - 3.3V del microcontrollore e hanno assorbimenti molto limitati (inferiori a pochi mA).\\
 
-\noindent
-Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quando premuti.\\
-
-\vspace{0.3cm}
-\noindent
-I pin indicati a destra nel diagramma (GPIO25, GPIO32, GPIO33, GPIO13, GPIO12, GPIO14, GPIO19, GPIO18 e GPIO5) sono uscite, mentre i pin indicati a sinistra (GPIO23, GPIO0, GPIO15, GPIO2, GPIO4, GPIO25) sono input, unica eccezione il GPIO 22, che, come trattato in seguito nella sezione \ref{adns2610_protocol}, per la natura del protocollo seriale implementato dal sensore ADNS2610 richiede la possibilità di scambiare dati in modo bidirezionale.\\
-
-\vspace{0.3cm}
-\noindent
 Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegamenti con i pin esterni.
 
-\noindent
+Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quando premuti.\\
 
-
-%Text below%\footnotemark[1]
-
-\vfill
-
+\begin{figure}[h]
+\centering
+    \includegraphics[width=55pt]{Draws/Pull_down.png}
+    \caption{Pulldown finecorsa}
+\end{figure}
 
 
 \section{Descrizione componenti}
@@ -166,11 +163,10 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
     
     \begin{figure}[h]
     \centering
-        \includegraphics[width=300pt]{Draws/Animations/StepperMotor.png}
+        \includegraphics[width=240pt]{Draws/Animations/StepperMotor.png}
         \caption{Fasi motore passo-passo, Wikimedia Commons \protect\footnotemark}
     \end{figure}
     
-    \vfill
     \footnotetext{Questa immagine è tratta e modificata da Wikimedia Commons, informazioni riguardo l'autore originale, modifiche successive e licenza GNU Free Documentation License possono essere reperite al seguente link: commons.wikimedia.org/wiki/File:StepperMotor.gif}
     
     
@@ -180,7 +176,7 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         Il funzionamento interno, come mostrato dal costruttore nel datasheet, può essere schematizzato con il seguente diagramma a blocchi.\\
         \begin{figure}[h]
         \centering
-            \includegraphics[width=370pt]{Draws/A4988_functional_diagram.png}
+            \includegraphics[width=320pt]{Draws/A4988_functional_diagram.png}
             \caption{Diagramma funzionamento interno A4988, datasheet}
             \label{fig:A4988_diagram}
         \end{figure}
@@ -228,7 +224,7 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
     
     \begin{figure}[h]
         \centering
-        \includegraphics[width=110pt]{Draws/Pinhole_diagram}
+        \includegraphics[width=100pt]{Draws/Pinhole_diagram}
         \caption{Diagramma camera a foro di spillo}
         \label{fig:pinhole_diagram}
     \end{figure}
@@ -251,23 +247,21 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
     \vspace{0.2cm}
     
     \noindent
-    Si limiti il range di interesse da 15°C a 300°C in cui rientra la regolare temperatura di un forno solare.\\
-    Secondo la relazione (\ref{thermocouple_relation_AD595}) l'uscita in tensione del sensore varierà all'interno dell'intervallo [150mV; 3.0V], mentre l'ADC integrato nel microcontrollore, con $V_{ref}$ standard, ammette ingressi nel range [0V; 3.3V]; di seguito si suppongono tutti i dispositivi impiegati come ideali.\\
-        È possibile applicare un offset di 
+    Si limiti il range di interesse da 15°C a 300°C in cui rientra la regolare temperatura di un forno solare. Secondo la relazione (\ref{thermocouple_relation_AD595}) l'uscita in tensione del sensore varierà all'interno dell'intervallo [150mV; 3.0V], mentre l'ADC integrato nel microcontrollore, con $V_{ref}$ standard, ammette ingressi nel range [0V; 3.3V]; di seguito si suppongono tutti i dispositivi impiegati come ideali. È possibile applicare un offset e successivamente un'amplificazione opportunamente calcolati di seguito.
         \begin{equation}\label{offset}
             {V_{offset}} = V_{Smin} - V_{ADCmin} = 150 mV
         \end{equation}
-        e successivamente un'amplificazione di
+        
         \begin{equation}\label{amplification}
             A = \frac{V_{ADCmax}-V_{ADCmin}}{V_{Smax} - V_{Smin}} \simeq 1.16
         \end{equation}
-        utilizzando un amplificatore operazionale in configurazione differenziale come segue.
+        Tali valori possono essere ottenuti utilizzando un amplificatore operazionale in configurazione differenziale come segue.
 
         \noindent
         \begin{center}
             \includegraphics[
                 page=1,
-                width=\textwidth-120pt,
+                width=\textwidth-150pt,
                 keepaspectratio
             ]{Draws/Schematic_Elaborato_2021-05-15_differential.pdf}
         \end{center}
@@ -289,20 +283,11 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
     
         \noindent
         L'aggiunta di questo condizionamento richiede inoltre ulteriori componenti per la generazione dell'alimentazione duale per l'operazionale, quindi, in aggiunta a quanto già discusso all'inizio di questa sezione, non è stato ritenuto necessario impiegare condizionamenti successivi all'integrato AD595.
-\vspace{1cm}
+
 
 \section{Cenni matematici}
     \subsection{Sistema coordinate cartesiane - polari}
-    Si ricorda che è possibile definire in modo univoco un punto A sul piano cartesiano mediante le sue coordinate $(x_A, y_A)$. Lo stesso punto A può anche essere descritto univocamente dalla distanza $r$ dal centro e dall'angolo $\alpha$ che esso forma con il centro e il semiasse positivo delle ascisse.
-    
-    \begin{figure}[h]
-    \centering
-        \includegraphics[width=300pt]{Draws/geogebra-export_polar_circle.png}
-        \caption{Rappresentazione coordinate polari su piano cartesiano, geogebra}
-    \end{figure}
-    
-    \noindent
-    È possibile ottenere la rapprentazione cartesiana dalle coordinate polari secondo le relazioni:
+    Si ricorda che è possibile definire in modo univoco un punto A sul piano cartesiano mediante le sue coordinate $(x_A, y_A)$. Lo stesso punto A può anche essere descritto univocamente dalla distanza $r$ dal centro e dall'angolo $\alpha$ che esso forma con il centro e il semiasse positivo delle ascisse. È possibile ottenere la rapprentazione cartesiana dalle coordinate polari e viceversa secondo le relazioni:
     
     \begin{equation}
         \begin{split}
@@ -311,9 +296,6 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         \end{split}
     \end{equation}
     
-    \noindent
-    Viceversa:
-    
     \begin{equation}
         \begin{split}
         r = \sqrt{x_A^2 + y_A^2} \\
@@ -321,29 +303,37 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         \end{split}
     \end{equation}
     
-    \noindent
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=190pt]{Draws/geogebra-export_polar_circle.png}
+        \caption{Rappresentazione coordinate polari su piano cartesiano, geogebra}
+    \end{figure}
+    
     In particolare, una volta determinata la posizione del centro del sole nell'immagine acquisita, ed espresso tale punto in coordinate polari $(r, \alpha)$, $r$ è direttamente legato all'elevazione effettiva del sole secondo la relazione (\ref{pinhole_angle_relation}), mentre $\alpha$ indica la diffetenza tra l'azimuth del sole e la posizione attuale della base girevole. Si osserva, infatti, che le due quantità possono essere trattate indipendentemente, in quanto ruotando la base varierà $\alpha$, mentre $r$ sarà, idealmente, costante (il centro si muove lungo una circonferenza di raggio $r$); viceversa, una variazione della sola elevazione non varia il valore di $\alpha$ (il punto si muove su uno stesso raggio della circonferenza originale).
     
     
     \subsection{Relazioni trigonometriche}
-    Per ottimizzare la potenza assorbita dal forno si vuole che la totalità della luce che investe gli specchi venga riflessa all'interno del forno, attraverso il vetro trasparente posto sulla faccia sueriore della scatola. La situazione può essere schematizzata come segue.
+    Per ottimizzare la potenza assorbita dal forno si vuole che la totalità della luce che investe gli specchi venga riflessa all'interno del forno, attraverso il vetro trasparente posto sulla faccia sueriore della scatola. La situazione può essere schematizzata come mostrato nella figura \ref{sun_reflection}.
 
     \begin{figure}[h]
     \centering
         \includegraphics[width=300pt]{Draws/Reflection_schematics_trig.png}
         \caption{Schema riflessioni raggi solari}
+        \label{sun_reflection}
     \end{figure}
     
     \noindent
     Dal rispetto del teorema di Carnot e dalle relazioni trigonometriche nei triangoli rettangoli si ottiene:
-    
+ 
+\/*
     \begin{equation}
         \sqrt{a^2 + b^2 - 2 a b \cos(\pi-\theta_1)}  \cdot \sin \left(2 \theta_1 - \alpha - \frac{\pi}{2} \right) = a \cdot \sin(\theta_1)
     \end{equation}
 
     \noindent
     Che può essere riscritto come:
-    
+*/
+
     \begin{equation}
         \sqrt{a^2 + b^2 + 2 a b \cos(\theta_1)}  \cdot \cos(2 \theta_1 - \alpha) + a \cdot \sin(\theta_1) = 0
     \end{equation}
@@ -354,30 +344,27 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
         \sqrt{a^2 + b^2 + 2 a b \cos(\theta_2)}  \cdot \cos(2 \theta_2 + \alpha) + a \cdot \sin(\theta_2) = 0
     \end{equation}
     
-    \noindent
-    Risolvere algebricamente queste equazioni risulta particolarmente lungo, sebbene non difficile, e considerato che il range di interesse si limita a $\alpha \in [0, \frac{\pi}{2})$ e $\theta_1, \theta_2 \in (0, \pi)$ si può valutare di risolvere per approssimazione tali uguaglianze per trovare il valore degli angoli cercati per uno specifico valore di $\alpha$ misurato.
     
-    \vspace{1cm}
-    
-    \noindent
-    L'inclinazione degli specchi viene regolata mediante un sistema vite-dado, che può essere schematizzato come segue.
+    Risolvere algebricamente queste equazioni risulta particolarmente laborioso, sebbene non difficile, e considerato che il range di interesse si limita a $\alpha \in [0, \frac{\pi}{2})$ e $\theta_1, \theta_2 \in (0, \pi)$ si può valutare di risolvere per approssimazione tali uguaglianze per trovare il valore degli angoli cercati per uno specifico valore di $\alpha$ misurato.\\
     
     \begin{figure}[h]
     \centering
-        \includegraphics[width=250pt]{Draws/Linear_inclination_trig.png}
+        \includegraphics[width=240pt]{Draws/Linear_inclination_trig.png}
         \caption{Schema inclinazione specchi}
+        \label{mirror_inclination_system}
     \end{figure}
     
-    \noindent
+    
+    L'inclinazione degli specchi viene regolata mediante un sistema vite-dado, che può essere schematizzato come mostrato nella figura \ref{mirror_inclination_system}.\\
+    
     In cui sia $d$ che $\beta$ sono noti, in quanto determinati dalla costruzione e $\theta$ è l'angolo calcolato in precedenza. È quindi possibile calcolare la distanza $\overline{\rm BD}$, dipendente dalla rotazione del motore, applicando nuovamente il teorema di Carnot:
     
     \begin{equation}
         \overline{\rm BD} = \sqrt{a^2 + d^2 - 2 a b \cdot \cos(\beta + \theta)}
     \end{equation}
     
-    \vspace{1cm}
-     
-    \noindent
+    \vspace{1.5cm}
+    
     Infine, nota tale distanza, è possibile calcolare la rotazione del motore per portarlo alla posizione voluta, ma è necessario conoscere anche la posizione attuale assoluta dello specchio, per questo motivo è necessario un finecorsa che all'accensione permetta al controllore di avere un riferimento assoluto (analoga alla procedura di homing per le macchine a controllo numerico).
 
 \section{Algoritmo}
@@ -396,7 +383,7 @@ Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegament
             \label{Steps_velocity_acceleration_in_time}
         \end{figure}
         
-        \noindent
+        
         L'andamento nel tempo mostrato in figura \ref{Steps_velocity_acceleration_in_time} può essere suddiviso in 3 fasi: una iniziale di accelerazione (ad accelerazione costante), un'eventuale fase centrale a velocità costante ed una finale di decelerazione (con accelerazione costante e opposta a quella iniziale).\\
         
         Ricordando le equazioni del moto uniformemente accelerato, si ha:
@@ -605,19 +592,19 @@ void calculate_gradient_matrix () {
             \caption{Distanza punto - circonferenza}
         \end{figure}
         
-        \noindent
+        
         Applicando il teorema di pitagora, per differenza, si ottiene che la distanza $ e $ è definita in funzione delle coordinate del centro e del punto in questione, secondo la relazione
         \begin{equation}
              e = \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right|
         \end{equation}
         
-        \noindent
+        
         Possiamo quindi definire la seguente funzione\footnote{Per semplicità di seguito si assume che per una matrice $m \times n$ gli indici degli elementi assumano valori partendo da 0, ad esempio l'elemento della prima riga e colonna sarà $G_{0,0}$, mentre l'elemento dell'ultima riga e colonna sarà $G_{m-1, n-1}$. Questo perché nella maggior parte dei linguaggi di programmazione l'indice del primo elemento di un array è proprio 0.}
         \begin{equation}
             f(x, y, r) = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ G_{y_p, x_p} \cdot \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right| \right] 
         \end{equation}
         
-        \noindent
+        
         in cui la matrice $ G_{y_p, x_p} $ rappresenta il modulo del gradiente dell'immagine del punto $ (x_p, y_p) $, come trattato nella sezione \ref{edge_detection}, ed è quindi un coefficiente reale. Tale sommatoria risulta quindi una somma ponderata delle distanze tra la circonferenza in considerazione e tutti i punti della matrice discussa alla sezione precedente. Il modulo del gradiente sarà maggiore per i punti sul contorno dell'immagine del sole, che quindi avranno un peso maggiore rispetto agli altri.\\
         
         Il problema risulta quindi equivalente alla ricerca del minimo di tale funzione, per questo scopo può essere utile considerare il caso più semplice di una funzione ad una sola variabile.
@@ -664,7 +651,7 @@ void calculate_gradient_matrix () {
             \frac{\partial f}{\partial r} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ - G_{y_p, x_p} \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \right] 
         \end {equation}
         
-        \noindent
+        
         con $ sgn(x)$ definita a tratti nel dominio $(- \infty ; 0) \cup (0; +\infty) $ :
         
         \begin {equation}
@@ -703,7 +690,7 @@ void calculate_gradient_matrix () {
         Un possibile esempio di implementazione è il seguente\footnote{Come per le porzioni di codice precedenti, esso fa riferimento a costanti e variabili globali non riportate in questo documento.}.
         
         \begin{changemargin}{-2cm}{-2cm}
-        \begin{lstlisting}[label={list:edge_detection_code}, style=Arduino, caption=Ricerca minimi - discesa del gradiente, basicstyle=\scriptsize]
+        \begin{lstlisting}[label={list:gradient_descent}, style=Arduino, caption=Ricerca minimi - discesa del gradiente, basicstyle=\scriptsize]
 void gradient_descent (float x, float y, float r, uint16_t iterations) {
   for (uint16_t recurse_n = 0; recurse_n < iterations; recurse_n++) {
     float dx = 0.0, dy = 0.0, dr = 0.0;

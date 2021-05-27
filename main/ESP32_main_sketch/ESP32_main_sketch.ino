@@ -32,8 +32,10 @@ void setup() {
   pinMode(SDIO, INPUT);       // High Z
   pinMode(DIR_H, OUTPUT);
   pinMode(STEP_H, OUTPUT);
+  pinMode(ENABLE_H, OUTPUT);
   pinMode(DIR_V, OUTPUT);
   pinMode(STEP_V, OUTPUT);
+  pinMode(ENABLE_V, OUTPUT);
 
   digitalWrite(DIR_H, LOW);
   digitalWrite(STEP_H, LOW);
@@ -70,6 +72,7 @@ void setup() {
 
   server.on("/getImageMatrix", HTTP_GET, imageMatrixRequest);
   server.on("/moveStepper", HTTP_GET, moveStepperHandler);
+  server.on("/disableStepper", HTTP_GET, disableStepperHandler);
   
   server.onNotFound([]() {
     if (!handleFileRead(server.uri())) {

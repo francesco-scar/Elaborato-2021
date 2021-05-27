@@ -147,11 +147,13 @@ function toggle_enable () {
   if (motors_enabled) {
     motors_enabled = false;
     document.getElementById('toggle_enable_button').className = '';
+    document.getElementById('toggle_enable_button').innerText = 'Enable Motors';
   } else {
     motors_enabled = true;
     document.getElementById('toggle_enable_button').className = 'button_red';
+    document.getElementById('toggle_enable_button').innerText = 'Disable Motors';
   }
-  ajax();
+  ajax("/disableStepper?val="+Number(!motors_enabled), () => {});
 }
 
 update_plot();

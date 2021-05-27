@@ -114,3 +114,14 @@ void moveStepperHandler () {
   }
   server.send(200, "text/plain", "OK");
 }
+
+
+void disableStepperHandler () {
+  disable_motor = server.arg("val").toInt();
+  server.send(200, "text/plain", "OK\n" + String(disable_motor));
+  
+  if (disable_motor) {
+    digitalWrite(ENABLE_V, HIGH);
+    digitalWrite(ENABLE_V, HIGH);
+  }
+}

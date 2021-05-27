@@ -38,6 +38,7 @@
     \usepackage[hidelinks]{hyperref}
     \usepackage[hang,flushmargin]{footmisc}
     \usepackage{setspace}
+    \usepackage[bottom=2.5cm]{geometry}
     
     \renewcommand{\lstlistingname}{Codice}
 %    \renewcommand{\baselinestretch}{1.35}
@@ -176,7 +177,7 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
     
     \begin{figure}[h]
     \centering
-        \includegraphics[width=240pt]{Draws/Animations/StepperMotor.png}
+        \includegraphics[width=200pt]{Draws/Animations/StepperMotor.png}
         \caption{Fasi motore passo-passo, Wikimedia Commons \protect\footnotemark}
     \end{figure}
     
@@ -297,7 +298,7 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
         \noindent
         L'aggiunta di questo condizionamento richiede inoltre ulteriori componenti per la generazione dell'alimentazione duale per l'operazionale, quindi, in aggiunta a quanto già discusso all'inizio di questa sezione, non è stato ritenuto necessario impiegare condizionamenti successivi all'integrato AD595.
 
-
+\newpage
 \section{Cenni matematici}
     \subsection{Sistema coordinate cartesiane - polari}
     Si ricorda che è possibile definire in modo univoco un punto A sul piano cartesiano mediante le sue coordinate $(x_A, y_A)$. Lo stesso punto A può anche essere descritto univocamente dalla distanza $r$ dal centro e dall'angolo $\alpha$ che esso forma con il centro e il semiasse positivo delle ascisse. È possibile ottenere la rapprentazione cartesiana dalle coordinate polari e viceversa secondo le relazioni:
@@ -380,23 +381,20 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
     
     Infine, nota tale distanza, è possibile calcolare la rotazione del motore per portarlo alla posizione voluta, ma è necessario conoscere anche la posizione attuale assoluta dello specchio, per questo motivo è necessario un finecorsa che all'accensione permetta al controllore di avere un riferimento assoluto (analoga alla procedura di homing per le macchine a controllo numerico).
 
-\newpage
 
+\newpage
 \section{Algoritmo}
     \subsection{Diagramma di flusso generale}
         \subsubsection{Setup}
-            \begin{figure}[h]
-            \centering
-                \includegraphics[height=\textheight-145pt]{Draws/Flowchart/Setup.png}
+            \begin{center}
+                \includegraphics[height=\textheight-150pt]{Draws/Flowchart/Setup.png}
                 \label{setup_flowchart}
-            \end{figure}
+            \end{center}
         
         \subsubsection{Loop}
-            \begin{figure}[h]
-            \centering
-                \includegraphics[height=\textheight-145pt]{Draws/Flowchart/loop.png}
-                \label{loop_flowchart}
-            \end{figure}
+            \begin{center}
+                \includegraphics[height=\textheight-40pt]{Draws/Flowchart/Loop.png}
+            \end{center}
         
     \subsection{Analisi funzioni principali}
         \subsubsection{Controllo accelerazione motori}
@@ -406,7 +404,7 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
         
         \begin{figure}[h]
         \centering
-            \includegraphics[width=\textwidth-100pt]{Draws/Motors_s-v-a_block.png}
+            \includegraphics[width=\textwidth-25pt]{Draws/Motors_s-v-a_block.png}
             \caption{Andamento steps nel tempo}
             \label{Steps_velocity_acceleration_in_time}
         \end{figure}
@@ -425,7 +423,7 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
 
         \vspace{0.1cm}
 
-        Una possibile implementazione per il microcontrollore in considerazione può essere la seguente\footnote{Questa funzione fa parte di del programma completo nel suo complesso, per cui vi sono riferimenti a variabili globali costanti non definite all'interno di questa funzione.}.
+        Una possibile implementazione per il microcontrollore in considerazione può essere la seguente\footnote{Questa funzione fa parte del programma completo nel suo complesso, per cui vi sono riferimenti a variabili globali e costanti non definite all'interno di questa funzione.}.
         
         
         \begin{changemargin}{-2cm}{-2cm}
@@ -499,6 +497,7 @@ long move_stepper (long n_steps, float speed, float acceleration, int dir_pin, i
 }       \end{lstlisting}
         \end{changemargin}
         
+        \newpage
         \subsubsection{Protocollo sensore ottico}\label{adns2610_protocol}
         
         Il sensore ADNS2610 utilizza un protocollo digitale sincrono che permette la lettura e scrittura di registri interni con diverse funzioni. Per l'applicazione in questione è rilevante il registro 0x08, che alla $i$-esima lettura dell'ultima scrittura in questo registro fornisce un byte riguardante l'$i$-esimo pixel (ripartendo dal primo quando si raggiunge l'ultimo pixel): il bit più significativo  indica se il pixel è o meno il primo dell'immagine; il bit successivo è posto a 1 se e solo se il dato è corretto e può essere letto; i restanti 6 bit rappresentano la luminosità del pixel in questione.
@@ -513,7 +512,7 @@ long move_stepper (long n_steps, float speed, float acceleration, int dir_pin, i
         
         Nel diagramma precedente si osserva chiaramente una prima comunicazione che scrive nel registro 0x08 (per resettare lo stato interno e leggere successivamente il primo pixel) seguita da una lettura dello stesso registro che ritorna la luminosità del primo pixel.
       
-        \vspace{0.7cm}
+        \vspace{2cm}
         Un possibile esempio di implementazione può essere il seguente\footnote{Come nell'esempio precedente vi sono variabili globali non definite, in particolare la variabile "matrix" conterrà la matrice rappresentante l'immagine acquisita}.
         
         \begin{changemargin}{-2cm}{-2cm}
@@ -527,6 +526,7 @@ while (i < 18 * 18) {
     i++;
   }
 }
+
 
 void write(uint8_t register_addr, uint8_t data) {
   register_addr |= 0b10000000;                  // Set MSB to 1
@@ -567,6 +567,7 @@ void write_byte (uint8_t byte_val) {
 }       \end{lstlisting}
         \end{changemargin}
         
+        \newpage
         \subsubsection{Edge detection}\label{edge_detection}
         Per determinare i contorni di una figura in un'immagine i sistemi di visione, solitamente, valutano la differenza di colore, o luminosità, tra pixel successivi, in quanto maggiore è tale differenza e più è netto il contorno composto da quei pixel.
         
@@ -616,7 +617,7 @@ void calculate_gradient_matrix () {
 
         \begin{figure}[h]
         \centering
-            \includegraphics[width=220pt]{Draws/Discesa_del_gradiente_cerchio-punto.png}
+            \includegraphics[width=260pt]{Draws/Discesa_del_gradiente_cerchio-punto.png}
             \caption{Distanza punto - circonferenza}
         \end{figure}
         
@@ -650,18 +651,20 @@ void calculate_gradient_matrix () {
         
         \begin{figure}[h]
         \centering
-            \includegraphics[width=250pt]{Draws/matplotlib_draws/3d_descent_base_cut.png}
+            \includegraphics[width=\textwidth-50pt]{Draws/matplotlib_draws/3d_descent_base_cut.png}
             \caption{Ricerca minimo - 3D}
             \label{3d_min_search}
         \end{figure}
         
         In cui il minimo può essere trovato nuovamente iterando più volte un procedimento analogo al precedente, considerando entrambe le derivate parziali della funzione.\\
         
-        Nella situazione in questione i le variabili sono tre, $x$, $y$ e $r$, per cui la funzione può essere rappresentata geometricamente in uno spazio a 4 dimensioni, che associa ad ogni punto dello spazio tridimensionale un valore proporzionale all'errore, per questo motivo possiamo rappresentare il valore assunto dalla funzione mediante una scala cromatica e visualizzarne l'andamento.
+        
+        \vspace{1cm}
+        Nella situazione in questione i le variabili sono tre ($x$, $y$ e $r$), per cui la funzione può essere rappresentata geometricamente in uno spazio a 4 dimensioni, che associa ad ogni punto dello spazio tridimensionale un valore proporzionale all'errore, per questo motivo possiamo rappresentare il valore assunto dalla funzione mediante una scala cromatica e visualizzarne l'andamento.
         
         \begin{figure}[h]
         \centering
-            \includegraphics[width=\textwidth-30pt]{Draws/matplotlib_draws/4d_descent_volume_block.png}
+            \includegraphics[width=\textwidth]{Draws/matplotlib_draws/4d_descent_volume_block.png}
             \caption{Ricerca minimo - 4D}
             \label{4d_min_search}
         \end{figure}
@@ -697,7 +700,7 @@ void calculate_gradient_matrix () {
             \nabla f (x_0, y_0, r_0) = \left( \frac{\partial f}{\partial x} \bigg\rvert_{x = x_0}, \frac{\partial f}{\partial y} \bigg\rvert_{y = y_0}, \frac{\partial f}{\partial r} \bigg\rvert_{r = r_0} \right)
         \end{equation}
         
-        
+        \vspace{1cm}
         Ad ogni iterazione dell'algoritmo si otterrà uno spostamento proporzionale a tale vettore, per cui alla $i$-esima ripetizione si avrà:
          
         \begin{equation}
@@ -708,13 +711,14 @@ void calculate_gradient_matrix () {
         
         \begin{figure}[h]
         \centering
-            \includegraphics[width=\textwidth-30pt]{Draws/matplotlib_draws/double_min_block.png}
+            \includegraphics[width=\textwidth]{Draws/matplotlib_draws/double_min_block.png}
             \caption{Minimo locale e minimo assoluto}
             \label{double_min}
         \end{figure}
         
-        Il minimo locale e il minimo assoluto corrispondono rispettivemente alla circonferenza mostrata nell'immagine di destra e di sinistra.
+        Il minimo locale e il minimo assoluto corrispondono rispettivemente alla circonferenza mostrata nell'immagine di destra e di sinistra.\\
 
+        \ne
         Un possibile esempio di implementazione è il seguente\footnote{Come per le porzioni di codice precedenti, esso fa riferimento a costanti e variabili globali non riportate in questo documento.}.
         
         \begin{changemargin}{-2cm}{-2cm}

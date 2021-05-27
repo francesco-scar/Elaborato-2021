@@ -122,6 +122,11 @@ void disableStepperHandler () {
   
   if (disable_motor) {
     digitalWrite(ENABLE_V, HIGH);
-    digitalWrite(ENABLE_V, HIGH);
+    digitalWrite(ENABLE_H, HIGH);
+  } else {
+    {
+    digitalWrite(ENABLE_V, LOW);
+    digitalWrite(ENABLE_H, LOW);
+  }
   }
 }

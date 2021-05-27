@@ -139,6 +139,7 @@ Tutti i componenti direttamente utilizzati dall'ESP-32 sono compatibili con la l
 
 Il modulo Wi-Fi è interno al chip dell'ESP-32 e dunque non richiede collegamenti con i pin esterni.
 
+\/*
 Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quando premuti.\\
 
 \begin{figure}[h]
@@ -146,7 +147,19 @@ Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quand
     \includegraphics[width=55pt]{Draws/Pull_down.png}
     \caption{Pulldown finecorsa}
 \end{figure}
+*/
 
+Lo schema circutale completo è riportato di seguito.
+\begin{figure}[h]
+\centering
+    \includegraphics[width=\textwidth]{Draws/Schematic.png}
+    \caption{Schema circuitale}
+\end{figure}
+
+L'alimentazione del sistema può esse fornita da un pannello solare per rendere il dispositivo indipendente dalla rete elettica; la logica di controllo richiede una tensione di 5V, mentre i motori di 12V, per cui è stato necessario impiegare due regolatori di tensione LM2596. Essi sono convertitori step-down DC-DC regolabili, che permettono di ottenere in uscita una tensione inferiore a quella in ingresso in modo efficiente, limitando le dispersioni di calore.
+
+
+\newpage
 
 \section{Descrizione componenti}
     \subsection{Microcontrollore}
@@ -368,6 +381,7 @@ Si assumono i finecorsa collegati in pulldown e con uscita allo stato alto quand
     Infine, nota tale distanza, è possibile calcolare la rotazione del motore per portarlo alla posizione voluta, ma è necessario conoscere anche la posizione attuale assoluta dello specchio, per questo motivo è necessario un finecorsa che all'accensione permetta al controllore di avere un riferimento assoluto (analoga alla procedura di homing per le macchine a controllo numerico).
 
 \newpage
+
 \section{Algoritmo}
     \subsection{Diagramma di flusso generale}
         \subsubsection{Setup}

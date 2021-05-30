@@ -222,7 +222,7 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
         \label{fig:ADNS2610_die}
     \end{figure}
    
-    \noindent
+   
     Questo integrato nasce come sensore per mouse ottici, che dispongono di una fotocamera a bassa risoluzione e confrontano le immagini di due frame successivi per individuare lo spostamento relativo alla superficie sottostante, nella porzione di sinistra della figura \ref{fig:ADNS2610_die} si osserva la matrice 18x18 degli elementi fotosensibili (l'immagine è stata realizzata con un ingrandimento e l'area effettiva coperta dalla griglia è di circa 2 $mm^2$).\\
     Il principio di funzionamento è identico ad una camera a foro di spillo, in cui l'immgine viene proiettata sullo schermo fotosensibile attraverso un foro circolare di piccole dimensioni.
     
@@ -233,7 +233,7 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
         \label{fig:pinhole_sun}
     \end{figure}
     
-    \noindent
+    
     La posizione dell'immagine sullo schermo, a parità delle altre condizioni, varia al variare della distanza tra il foro e il sensore stesso, in particolare, aumentando tale distanza il dispositivo avrà un angolo di campo minore, viceversa, diminuendo la distanza foro-rivelatore, si otterrà un angolo di campo maggiore.
     
     \begin{figure}[h]
@@ -243,13 +243,13 @@ L'alimentazione del sistema può esse fornita da un pannello solare per rendere 
         \label{fig:pinhole_diagram}
     \end{figure}
     
-    \noindent
+    
     In cui la relazione tra $x$ e l'angolo $\theta$ del raggio rispetto allo zenit è:
     \begin{equation}\label{pinhole_angle_relation}
         x = h \cdot tan(\theta)
     \end{equation}
     
-    \noindent
+    
     Maggiori dettagli riguardo l'interfacciamento in protocollo con il microcontrollore sono forniti nella sezione \ref{adns2610_protocol}.
     
     %\subsection{Interfaccia web}
@@ -611,7 +611,7 @@ void calculate_gradient_matrix () {
         \end{figure}
         
         
-        \subsubsection{Discesa del gradiente}
+        \subsubsection{Discesa del gradiente}\label{gradient_descent}
         Per ottenere il centro dell'immagine del sole, che approssimiamo ad un cerchio, è sufficiente trovare la circonferenza che meglio approssima il contorno esterno del cerchio, definito dai punti in cui si ha una differenza più netta tra pixels successivi. \\
         A tal fine si deve minimizzare la distanza geometrica tra la circonferenza e i punti con magiore modulo del vettore trattato nella sezione \ref{edge_detection}; tale distanza è schematizzata nella seguente figura con il tratto $ e $.
 
@@ -707,7 +707,7 @@ void calculate_gradient_matrix () {
             (x_i, y_i, r_i) = (x_{i-1}, y_{i-1}, r_{i-1}) - k \cdot \nabla f (x_{i-1}, y_{i-1}, r_{i-1}) \qquad con \quad k > 0
         \end{equation}
         
-        Essendo un algoritmo euristico esso non garantisce di trovare con esattezza un punto di minimo, ma una sua approssimazione (che per il caso in esame è più che sufficiente); inoltre il punto trovato è un minimo locale, ma non è garantito che sia un minimo assoluto, come mostrato nell'immagine \ref{}, per questo può essere opportuno ripetere il procedimento scegliendo diversi punti di partenza, oppure approssimare il centro con altri metodi e utilizzare il valore trovato come punto iniziale (quest'ultimo metodo risulta particolarmente efficace e può essere realizzato con una media ponderata delle coordinate dei pixel dell'immagine, pesati sulla loro luminosità).
+        Essendo un algoritmo euristico esso non garantisce di trovare con esattezza un punto di minimo, ma una sua approssimazione (che per il caso in esame è più che sufficiente); inoltre il punto trovato è un minimo locale, ma non è garantito che sia un minimo assoluto, come mostrato nell'immagine \ref{double_min}, per questo può essere opportuno ripetere il procedimento scegliendo diversi punti di partenza, oppure approssimare il centro con altri metodi e utilizzare il valore trovato come punto iniziale (quest'ultimo metodo risulta particolarmente efficace e può essere realizzato con una media ponderata delle coordinate dei pixel dell'immagine, pesati sulla loro luminosità).
         
         \begin{figure}[h]
         \centering
@@ -752,8 +752,26 @@ void gradient_descent (float x, float y, float r, uint16_t iterations) {
   }
 }       \end{lstlisting}
         \end{changemargin}
-  
-   
+
+    \newpage
+    \section{Conclusioni e considerazioni}
+    Dal grafico mostrato in figura \ref{accuracy_test} si può osservare che il metodo in esame fornisce risultati sufficientemente accurati e gli errori registrati possono derivare da errori di misura oltre che dalle effettive imprecisioni del sistema di acquisizione e di elaborazione dell'immagine.
+    
+    \begin{figure}[h]
+    \centering
+        \includegraphics[width=\textwidth-50pt]{Draws/Accuracy_test.png}
+        \caption{Prova di accuratezza}
+        \label{accuracy_test}
+    \end{figure}
+     
+    Inoltre la prova è stata effettuata utilizzando il foro normalmente in dotazione con il sensore, che limita l'angolo di campo a circa 40° (mantenendo risultati accettabili), tuttavia di può ovviare a questo problema come discusso nella sezione \ref{optical_sensor} oppure con l'aggiunta di un sistema ottico di lenti ed eventualemente utilizzando un sensore con una maggiore risoluzione.
+    
+    \vspace{1cm}
+    L'algoritmo per minimizzare il valore della funzione, trattato nella sezione \ref{gradient_descent}, è tipicamente utilizzato in algoritmi di intelligenza artificiale, in particolare machine learning, per la sua flessibilità, infatti la funzione da minimizzare può rappresentare diverse grandezze a seconda della situazione in esame e i parametri possono essere perfezionati all'aumentare dei campioni disponibili, senza dover modificare l'algoritmo in sé.
+    
+    \newpage
+    La relizzazione pratica e concreta di questo progetto richiede diversi processi e apparecchiature. In particolare la produzione dei circuiti stampati per un'installazione stabile e professionale richiede l'utilizzo di macchine a controllo numerico, come ad esempio fresatrice CNC, per la creazione di vie, fori e piste; inoltre per la rimozione del rame in eccesso dalla lastra ramata, durante la fase di creazione delle piste, vengono usate sostanze chimiche particolarmente corrosive e tossiche se ingerite, come il cloruro ferrico. Quindi il tema della sicurezza e l'utilizzo degli appositi DPI (Dispositivi di Protezione Individuale) sono elementi essenziali per la tutela dei lavoratori che operano nella produzione di questi prodotti. Inoltre, anche il dispositivo durante il funzionamento avrà dei rischi dovuti alle alte temperature che si possono raggiungere al suo interno (rischio di ustioni) e alle parti meccaniche in movimento (rischio di schiacciamento).
+    
     \vfill
     \let\thefootnote\relax\footnotetext{
         \begin{center}

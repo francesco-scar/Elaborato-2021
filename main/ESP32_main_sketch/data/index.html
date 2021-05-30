@@ -157,6 +157,13 @@
                       <label for="loop_sun_center_animation" id="sun_center_loop_span_label" class="disabled"> Loop:</label> <input type="checkbox" id="loop_sun_center_animation" name="loop_sun_center_animation" onchange="loop_sun_center_animation()" disabled> <input id="animation_loop_cycle" value="128" style="width: 50px;" disabled></input>
                     </td>
                   </tr>
+                  <tr>
+                    <td>
+                    </td>
+                    <td>
+                      Azimut: <label id="azimut">0.0</label>° &nbsp;&nbsp;&nbsp; Angolo da Zenit: <label id="elevation">0.0</label>°
+                    </td>
+                  </tr>
                 </table>
               </td>
             </tr>
@@ -165,10 +172,15 @@
       </div>
     </div>
     
+    <canvas id="canvas_image" width="1300" height="600" style="border:1px solid #ccc;">
+    Your browser does not support the canvas element.
+    </canvas>
+    
     <script type="text/javascript" src="general_functions.js"></script>
     <script type="text/javascript" src="reflection_simulation.js"></script>
     <script type="text/javascript" src="optical_sensor.js"></script>
     <script type="text/javascript" src="motors_control.js"></script>
+    <script type="text/javascript" src="temperature_chart.js"></script>
     <script type="text/javascript" src="example_data_values.js"></script>
   </body>
 </html>

@@ -4,10 +4,12 @@
 //#include <ESPmDNS.h>
 #include "secrets.h"
 
-#define DEFAULT_MATRIX_TEST
+//#define DEFAULT_MATRIX_TEST
 
 #define FORMAT_FILESYSTEM false
 #include <SPIFFS.h>
+
+#define GRADIENT_DESCENT_ITERATIONS 2048
 
 #define SCK 23                  // Clock pin
 #define SDIO 22                 // Serial Data Input/Output (half-duplex)

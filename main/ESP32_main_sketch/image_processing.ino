@@ -47,7 +47,7 @@ uint8_t matrix[18][18] =
 };             // A test image with circle center on the bottom edge (max y coord)
 
 uint8_t gradient_modules[16][16];
-float progressive_approximations[512 * 3];
+float progressive_approximations[GRADIENT_DESCENT_ITERATIONS * 3];
 
 void clear_matrix_val () {
   for (uint16_t i = 0; i < 18 * 18; i++) {

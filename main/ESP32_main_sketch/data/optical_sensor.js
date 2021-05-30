@@ -4,9 +4,9 @@ let last_gradient = new Array(16*16); last_gradient.fill(0);
 let progressive_approximations = new Array(512); progressive_approximations.fill([255, 255, 255]);
 valid_image = false;
 
-let coefficient = 100;
-let steps = 10;
-let max_angle = 60;
+let coefficient = 42;
+let steps = 5;
+let max_angle = 25;
 
 let loop = false;
 let running_demo = false;
@@ -67,9 +67,10 @@ function draw_pixels (matrix) {
 function draw_polar_axis () {
   let canvas = document.getElementById("canvas_image");
   let ctx = canvas.getContext("2d");
+  let pixel_size = canvas.width/N_PIXELS/2;
     
   for (let angle = steps; angle <= max_angle; angle += steps) {
-    drawCircle(ctx, canvas.width/2, canvas.height/2, coefficient*Math.tan(angle*Math.PI/180), '', '#ff0000', 2);
+    drawCircle(ctx, canvas.width/2, canvas.height/2, coefficient*Math.tan(angle*Math.PI/180)*pixel_size, '', '#ff0000', 2);
   }
 }
 
@@ -159,11 +160,15 @@ function display_sun_center() {
     loop_label.className = '';
     document.getElementById('animation_loop_cycle').disabled = false;
     animation_checkbox.disabled = false;
+    document.getElementById('azimut').innerText = ((Math.atan(progressive_approximations[3*slider_val+1]/progressive_approximations[3*slider_val])*180/Math.PI) + (progressive_approximations[3*slider_val] < 0 ? 270 : 90)).toFixed(1);
+    document.getElementById('elevation').innerText = Number.parseFloat(Math.atan(Math.sqrt(progressive_approximations[3*slider_val]**2 + progressive_approximations[3*slider_val+1]**2)/coefficient)*180/Math.PI).toFixed(1);
   } else {
     slider.disabled = true;
     loop_label.className = 'disabled';
     document.getElementById('animation_loop_cycle').disabled = true;
     animation_checkbox.disabled = true;
+    document.getElementById('azimut').innerText = '0.0';
+    document.getElementById('elevation').innerText = '0.0';
     clearInterval(last_animation_interval);
   }
 }
@@ -185,6 +190,8 @@ function loop_sun_center_animation() {
 
 
 function main_image_drawing_handler() {
+  document.getElementById('sun_center_slider').max = Number(progressive_approximations.length)/3 - 1;
+  
   if (document.getElementById('display_gradient').checked) {
     draw_gradient();
   } else {

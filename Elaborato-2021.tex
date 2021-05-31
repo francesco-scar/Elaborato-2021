@@ -632,7 +632,7 @@ void calculate_gradient_matrix () {
         
         
         Possiamo quindi definire la seguente funzione\footnote{Per semplicità di seguito si assume che per una matrice $m \times n$ gli indici degli elementi assumano valori partendo da 0, ad esempio l'elemento della prima riga e colonna sarà $G_{0,0}$, mentre l'elemento dell'ultima riga e colonna sarà $G_{m-1, n-1}$. Questo perché nella maggior parte dei linguaggi di programmazione l'indice del primo elemento di un array è proprio 0.}
-        \begin{equation}
+        \begin{equation}\label{error_function}
             f(x, y, r) = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ G_{y_p, x_p} \cdot \left| \sqrt{(x_p-x)^2 + (y_p-y)^2} -r \right| \right] 
         \end{equation}
         
@@ -673,7 +673,7 @@ void calculate_gradient_matrix () {
         \end{figure}
         
         \vspace{1cm}
-        Calcoliamo quindi le derivate parziali di $ f(x, y, r) $ rispetto alle tre variabili (non essendovi uno standard univoco, di seguito si è scelto di utilizzare la notazione di Leibniz per indicare derivate e derivate parziali)
+        Calcoliamo quindi le derivate parziali di $ f(x, y, r) $, espressa dell'equazione \ref{error_function}, rispetto alle tre variabili (non essendovi uno standard univoco, di seguito si è scelto di utilizzare la notazione di Leibniz per indicare derivate e derivate parziali)
         
         \begin {equation}
             \frac{\partial f}{\partial x} = \sum_{y_p = 0}^{15} \sum_{x_p = 0}^{15} \left[ G_{y_p, x_p} \cdot sgn \left( \sqrt{(x_p-x)^2 + (y_p-y)^2} - r \right) \cdot \frac{x - x_p}{\sqrt{(x_p - x)^2 + (y_p - y)^2}} \right] 
@@ -776,7 +776,7 @@ void gradient_descent (float x, float y, float r, uint16_t iterations) {
     In questo progetto si è scelto di utilizzare il driver A4988 che non fornisce un feedback diretto al microcontrollore, ma possibili sviluppi possono comprendere dei driver più complessi e sofisticati, come ad esempio il modulo TMC2130 o TMC2208, che comunicano con il microcontrollore in protocollo SPI dati riguardanti i consumi del motore e lo stato di funzionamento generale del dispositivo. Con queste tipologie di driver possono essere implementati controlli dei movimenti con accurati segnali di feedback, che permettono di rilevare ostacoli che bloccano la rotazione (in quanto aumentando la coppia del motore aumenta la corrente assorbita) e quindi non richiedono l'impiego dei finecorsa.
     
     \vspace{1cm}
-    La realizzazione pratica e concreta di questo progetto richiede diversi processi e apparecchiature. In particolare la produzione dei circuiti stampati per un'installazione stabile e professionale richiede l'utilizzo di macchine a controllo numerico, come ad esempio fresatrice CNC, per la creazione di vie, fori e piste; inoltre per la rimozione del rame in eccesso dalla lastra ramata, durante la fase di creazione delle piste, vengono usate sostanze chimiche particolarmente corrosive e tossiche se ingerite, come il cloruro ferrico. Quindi il tema della sicurezza e l'utilizzo degli appositi DPI (Dispositivi di Protezione Individuale) sono elementi essenziali per la tutela dei lavoratori che operano nella produzione di questi prodotti. Inoltre, anche il dispositivo stesso, durante il funzionamento,comporterà dei rischi dovuti alle alte temperature che si possono raggiungere al suo interno (rischio di ustioni) e alle parti meccaniche in movimento (rischio di schiacciamento).
+    La realizzazione pratica e concreta di questo progetto richiede diversi processi e apparecchiature. In particolare la produzione dei circuiti stampati per un'installazione stabile e professionale richiede l'utilizzo di macchine a controllo numerico, come ad esempio fresatrice CNC, per la creazione di vie, fori e piste; inoltre per la rimozione del rame in eccesso dalla lastra ramata, durante la fase di creazione delle piste, vengono usate sostanze chimiche particolarmente corrosive e tossiche se ingerite, come il cloruro ferrico. Quindi il tema della sicurezza e l'utilizzo degli appositi DPI (Dispositivi di Protezione Individuale) sono elementi essenziali per la tutela dei lavoratori che operano nella produzione di questi prodotti. Inoltre, anche il dispositivo stesso, durante il funzionamento, comporterà dei rischi dovuti alle alte temperature che si possono raggiungere al suo interno (rischio di ustioni) e alle parti meccaniche in movimento (rischio di schiacciamento).
     
     \vfill
     \let\thefootnote\relax\footnotetext{

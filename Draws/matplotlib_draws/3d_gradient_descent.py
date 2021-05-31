@@ -2,11 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
-from matplotlib.patches import FancyArrowPatch
-from mpl_toolkits.mplot3d import proj3d
-#from ipywidgets import interactive
 
-'''
+K = 0.001
+
 gradient = [[1,1,0,0,0,0,1,1,0,1,3,3,3,3,3,4,],\
 [0,1,1,1,2,7,14,18,15,7,1,2,2,2,2,3,],\
 [1,0,2,7,28,40,40,38,41,40,28,7,2,1,1,1,],\
@@ -24,7 +22,6 @@ gradient = [[1,1,0,0,0,0,1,1,0,1,3,3,3,3,3,4,],\
 [1,1,26,49,41,19,11,9,12,22,40,50,23,3,1,1,],\
 [1,1,1,11,40,42,37,36,38,43,37,15,2,2,1,1]]
 '''
-
 gradient = [[0,0,1,1,0,1,1,0,0,0,1,0,0,0,0,1],\
 [0,1,1,1,1,0,1,0,0,0,0,0,0,0,0,1],\
 [1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,1],\
@@ -41,7 +38,7 @@ gradient = [[0,0,1,1,0,1,1,0,0,0,1,0,0,0,0,1],\
 [1,10,51,55,5,2,4,3,3,4,1,3,7,43,60,22],\
 [3,30,59,24,4,2,8,3,2,7,3,3,4,8,52,43],\
 [7,43,47,11,1,3,3,3,4,5,2,2,4,7,39,49]]
-
+'''
 '''
 #old border
 gradient = [[1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,],\
@@ -61,17 +58,6 @@ gradient = [[1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,],\
 [2,33,65,19,7,4,2,5,2,3,2,1,3,32,65,26,],\
 [6,50,50,6,0,4,2,1,5,2,1,4,3,7,55,44]]
 '''
-
-class Arrow3D(FancyArrowPatch):
-    def __init__(self, xs, ys, zs, *args, **kwargs):
-        FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
-        self._verts3d = xs, ys, zs
-    def draw(self, renderer):
-        xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-        FancyArrowPatch.draw(self, renderer)
-
 
 def SGN(x):
   if (x > 0):
@@ -110,16 +96,15 @@ def gradient_val(x, y, r = 6.68):   #6.41
 
 
     
-x = np.linspace(3, 13, 1000)
-y = np.linspace(3, 18, 1000)
-#x = np.linspace(0, 16, 1000)
-#y = np.linspace(0, 16, 1000)
+#x = np.linspace(3, 13, 1000)
+#y = np.linspace(3, 18, 1000)
+x = np.linspace(0, 16, 1000)
+y = np.linspace(0, 16, 1000)
 X, Y = np.meshgrid(x, y)
 Z = f(X, Y)
 
 fig = plt.figure(figsize = [12, 8])
 ax = fig.gca(projection = '3d')
-Z = f(X, Y)
 
 '''
 x_grad = 14
@@ -133,5 +118,18 @@ ax.add_artist(a)
 '''
 
 ax.plot_surface(X, Y, Z, cmap=cm.coolwarm_r)
+
+path = []
+x_g, y_g = 14, 14
+for i in range(10):
+    path.append([x_g, y_g, f(x_g, y_g)])
+    gradient_evaluated = gradient_val(x_g, y_g)
+    x_g += gradient_evaluated[0]*K
+    y_g += gradient_evaluated[1]*K
+    
+for el in path:
+  print(el)
+
+ax.plot([t[0] for t in path], [t[1] for t in path], [t[2]+1000 for t in path], markerfacecolor='r', markeredgecolor='r', marker='.', markersize=20)
 
 plt.show()

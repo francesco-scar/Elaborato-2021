@@ -87,7 +87,8 @@ void imageMatrixRequest () {
   }
 
   float starting_point[2];
-  detect_starting_point(starting_point, get_threshold());
+  uint8_t threshold_starting_point = get_threshold();
+  detect_starting_point(starting_point, threshold_starting_point);
   
   gradient_descent(starting_point[0], starting_point[1], 2, GRADIENT_DESCENT_ITERATIONS);
 //  gradient_descent(7.5, 4.5, 2, 512);
@@ -101,7 +102,7 @@ void imageMatrixRequest () {
   }
 
 
-  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"valid_image\":" + valid_image + ", \"gradient\":[" + output_gradient + "], \"progressive_approximations\":[" + output_progressive + "]}");
+  server.send(200, "text/plain", "{\"matrix\":[" + output_matrix + "], \"valid_image\":" + valid_image + ", \"threshold_starting_point\":" + threshold_starting_point + ", \"gradient\":[" + output_gradient + "], \"progressive_approximations\":[" + output_progressive + "]}");
   if (server.hasArg("scanAfter")) {
     getImageMatrix();
   }

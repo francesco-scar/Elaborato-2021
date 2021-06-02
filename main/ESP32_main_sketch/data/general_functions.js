@@ -46,3 +46,40 @@ function drawText(ctx, text, size, x, y) {
   ctx.font = size + "px Arial";
   ctx.fillText(text, x, y);
 }
+
+function rgb(rgb_val) {
+  let r = rgb_val[0];
+  let g = rgb_val[1];
+  let b = rgb_val[2];
+  return "#"+(r).toString(16).padStart(2,'0')+(g).toString(16).padStart(2,'0')+(b).toString(16).padStart(2,'0');
+}
+
+function interpolateColors(value, points) {
+  let x_min, x_max, y_min, y_max;
+  for (let point of points) {
+//    console.log(point)
+    if (value == point.val) {
+      return point.color;
+    }
+    if (value < point.val && x_min != undefined) {
+      x_max = point.val;
+      y_max = point.color;
+      break;
+    }
+    if (value > point.val) {
+      x_min = point.val;
+      y_min = point.color;
+    }
+  }
+//  console.log(x_min, x_max, y_min, y_max)
+  let result = [0, 0, 0];
+  
+  if (x_min != undefined && x_max != undefined) {
+    for (let i = 0; i < 3; i++) {
+      result[i] = Math.round((y_max[i] - y_min[i])/(x_max - x_min) * (value - x_min) + y_min[i]);
+//      console.log(value, result[i])
+    }
+  }
+  
+  return result;
+}

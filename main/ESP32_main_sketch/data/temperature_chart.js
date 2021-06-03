@@ -134,6 +134,19 @@ function temperature_chart (t = undefined) {
   }
   ctx.stroke();
   ctx.restore();
+  
+  // Labels
+  ctx.textAlign="center"; 
+  ctx.fillStyle = "#000";
+  drawText(ctx, 't [min]', 15, x_max_pos, chart.origin_y+15);
+  for (let i = 1; i <= chart.x_div; i++) {
+    drawText(ctx, -(chart.x_div-i), 15, chart.origin_x+i*x_q, chart.origin_y+15);
+  }
+  ctx.textAlign = "right";
+  drawText(ctx, 'T [°C]', 15, chart.origin_x-10, y_max_pos+10);
+  for (let i = 1; i <= chart.y_div; i++) {
+    drawText(ctx, chart.y_min+(chart.y_div-i+1)*(chart.y_max-chart.y_min)/chart.y_div, 15, chart.origin_x-10, y_max_pos+i*y_q);
+  }
 }
 
 function prg_temperature (t) {

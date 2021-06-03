@@ -75,6 +75,7 @@ void setup() {
   server.on("/getImageMatrix", HTTP_GET, imageMatrixRequest);
   server.on("/moveStepper", HTTP_GET, moveStepperHandler);
   server.on("/disableStepper", HTTP_GET, disableStepperHandler);
+  server.on("/getTemperature", HTTP_GET, getTemperature);
   
   server.onNotFound([]() {
     if (!handleFileRead(server.uri())) {

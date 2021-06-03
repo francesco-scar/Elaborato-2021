@@ -16,6 +16,7 @@ function ajax (url_request, callback) {
 
 
 function drawLine(ctx, startX, startY, endX, endY, color, lineWidth = 1, dash=[]) {
+  ctx.save();
   if (dash) {
     ctx.setLineDash(dash)
   }
@@ -25,6 +26,7 @@ function drawLine(ctx, startX, startY, endX, endY, color, lineWidth = 1, dash=[]
   ctx.moveTo(startX,startY);
   ctx.lineTo(endX,endY);
   ctx.stroke();
+  ctx.restore();
 }
 
 function drawCircle(ctx, x, y, radius, fill, stroke, strokeWidth, lineWidth = 1) {

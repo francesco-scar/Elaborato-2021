@@ -107,3 +107,7 @@ void imageMatrixRequest () {
     getImageMatrix();
   }
 }
+
+void getTemperature(){
+  server.send(200, "text/plain", String(get_temperature()));
+}

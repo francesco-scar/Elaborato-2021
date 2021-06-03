@@ -122,21 +122,22 @@ function update_plot () {
   // Dotted lines and reference value
   drawText(ctx, "Speed", 12, 5, 330);
   drawText(ctx, "[steps/s]", 11, 1, 345);
-  drawLine(ctx, 50, 370, first_connection_x, 370, '#555', 2, [10, 5]);                                                   // Horizzontal lines
+  drawLine(ctx, 50, 370, first_connection_x, 370, '#555', 2, [10, 5]);                                    // Horizzontal dotted lines
+  drawText(ctx, Math.round(speed), 12, 15, 370);
   
   drawText(ctx, "t [s]", 12, 590, 620);
   drawLine(ctx, 550, 50, 550, 300, '#555', 2, [10, 5]);                                                   // Vertical lines
-  drawText(ctx, Math.round(total_time*100)/100, 12, 550, 315);
-  drawLine(ctx, first_connection_x, first_connection_y, first_connection_x, 300, '#555', 2, [10, 5]);
-  drawText(ctx, Math.round(acceleration_time*100)/100, 12, first_connection_x-20, 315);
+  drawText(ctx, Math.round(total_time*100)/100, 12, 550, 615);
+  drawLine(ctx, first_connection_x, 370, first_connection_x, 600, '#555', 2, [10, 5]);
+  drawText(ctx, Math.round(acceleration_time*100)/100, 12, first_connection_x-20, 615);
   if (!acceleration_only) {
     drawLine(ctx, 50, 350-first_connection_y, 50+(550-first_connection_x), 350-first_connection_y, '#555', 2, [10, 5]);  // Horizzontal lines
     drawText(ctx, Math.round(steps-acceleration_steps), 12, 15, 350-first_connection_y);
-    drawLine(ctx, 50+(550-first_connection_x), 350-first_connection_y, 50+(550-first_connection_x), 300, '#555', 2, [10, 5]);  // Vertical lines
-    drawText(ctx, Math.round((total_time-acceleration_time)*100)/100, 12, 50+(550-first_connection_x), 315);
+    drawLine(ctx, 50+(550-first_connection_x), 370, 50+(550-first_connection_x), 600, '#555', 2, [10, 5]);  // Vertical dotted lines
+    drawText(ctx, Math.round((total_time-acceleration_time)*100)/100, 12, 50+(550-first_connection_x), 615);
   }
   
-  
+  // Actual chart lines
   drawLine(ctx, 50, 600, first_connection_x, 370, '#f00', 3);
   drawLine(ctx, first_connection_x, 370, 600-first_connection_x, 370, '#00f', 3);
   drawLine(ctx, 600-first_connection_x, 370, 550, 600, '#f00', 3);

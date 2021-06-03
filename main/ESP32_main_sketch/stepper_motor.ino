@@ -2,7 +2,7 @@
 #define MICROSTEPPING_RATIO 16.0
 #define STEPS_PER_TURN 360/ANGLE_PER_STEP*MICROSTEPPING_RATIO
 
-#define MAX_H_OFFSET 100
+#define MAX_H_OFFSET 20000
 #define MAX_V_OFFSET 20000
 
 bool disable_motor = false;

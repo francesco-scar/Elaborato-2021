@@ -9,7 +9,7 @@
 #define FORMAT_FILESYSTEM false
 #include <SPIFFS.h>
 
-#define GRADIENT_DESCENT_ITERATIONS 2048
+#define GRADIENT_DESCENT_ITERATIONS 512
 
 #define SCK 23                  // Clock pin
 #define SDIO 22                 // Serial Data Input/Output (half-duplex)

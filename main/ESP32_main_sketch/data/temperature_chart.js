@@ -158,13 +158,13 @@ function loop_demo_animation() {
     }
     
     if (up_temp) {
-      temperature += 0.1
+      temperature += 0.035
     } else {
-      temperature -= 0.1;
+      temperature -= 0.035;
     }
     
     temperature_chart(temperature);
-    setTimeout(loop_demo_animation, 100);
+    setTimeout(loop_demo_animation, 30);
   }
 }
 

@@ -7,9 +7,15 @@ let temperature = (gauge.min + gauge.max)/2;
 let temperature_array = [];
 
 document.body.addEventListener("keydown", event => {
-  if (event.keyCode === 68) { // 68 is keycode for 'd'
+  if (event.key === 'd') {
     loop_demo = !loop_demo;
     loop_demo_animation();
+    return;
+  }
+  console.log(event)
+  if (event.key === 'r') {
+    prg_temperature(temperature);
+    temperature_chart();
     return;
   }
 });

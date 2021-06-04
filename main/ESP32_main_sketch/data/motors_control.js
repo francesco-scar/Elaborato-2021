@@ -148,11 +148,13 @@ function toggle_enable () {
   if (motors_enabled) {
     motors_enabled = false;
     document.getElementById('toggle_enable_button').className = '';
-    document.getElementById('toggle_enable_button').innerText = 'Enable Motors';
+    root.style.setProperty('--motors-enable-display', 'auto');
+    root.style.setProperty('--motors-disable-display', 'none');
   } else {
     motors_enabled = true;
     document.getElementById('toggle_enable_button').className = 'button_red';
-    document.getElementById('toggle_enable_button').innerText = 'Disable Motors';
+    root.style.setProperty('--motors-enable-display', 'none');
+    root.style.setProperty('--motors-disable-display', 'auto');
   }
   ajax("/disableStepper?val="+Number(!motors_enabled), () => {});
 }

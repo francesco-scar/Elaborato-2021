@@ -22,7 +22,7 @@
                 <!--<td style="width: 50%; height: auto">-->
                   <tr style="height: 100px">
                     <td>
-                      <label>Rays: </label><label id="rays_label">0</label> <input type="range" min="2" max="25" value="5" class="slider" id="rays_slider" oninput="main_reflection_drawing_handler()">
+                      <label class="en">Rays: </label><label class="it">Raggi: </label><label id="rays_label">0</label> <input type="range" min="2" max="25" value="5" class="slider" id="rays_slider" oninput="main_reflection_drawing_handler()">
                     </td>
                   </tr>
                   <tr style="height: 100px">
@@ -32,12 +32,12 @@
                   </tr>
                   <tr style="height: 100px">
                     <td>
-                      <label>Mirror: </label><label id="mirror_label">0</label><label> cm</label> <input type="range" min="20" max="60" value="60" class="slider" id="mirror_slider" oninput="main_reflection_drawing_handler()">
+                      <label class="en">Mirrors: </label><label class="it">Specchi: </label><label id="mirror_label">0</label><label> cm</label> <input type="range" min="20" max="60" value="60" class="slider" id="mirror_slider" oninput="main_reflection_drawing_handler()">
                     </td>
                   </tr>
                   <tr style="height: 100px">
                     <td>
-                      <label>Sun angle: </label><label id="sun_angle_label">0</label><label>°</label> <input type="range" min="-90" max="90" value="0" class="slider" id="sun_angle_slider" oninput="main_reflection_drawing_handler()">
+                      <label class="en">Sun angle: </label><label class="it">Angolazione sole: </label><label id="sun_angle_label">0</label><label>°</label> <input type="range" min="-90" max="90" value="0" class="slider" id="sun_angle_slider" oninput="main_reflection_drawing_handler()">
                       Loop:</label> <input type="checkbox" id="loop_sun_angle_animation" onchange="loop_sun_angle_animation()">
                     </td>
                   </tr>
@@ -88,13 +88,13 @@
                 <br>
                 &nbsp;
                 <br>
-                <button id="toggle_enable_button" onclick="toggle_enable()" class="button_red">Disable Motors</button>
+                <button id="toggle_enable_button" onclick="toggle_enable()" class="button_red"><div class="en"><label class="disable-motors">Disable Motors</label><label class="enable-motors">Enable Motors</label></div>  <div class="it"><label class="disable-motors">Disabilita Motori</label><label class="enable-motors">Abilita Motori</label></div></button>
                 <br>
                 &nbsp;
                 <br>
-                Steps: <label id="steps_label">100</label> <input type="range" min="1" max="4000" value="100" class="slider" id="steps_slider">
-                Speed: <label id="speed_label">500</label> <input type="range" min="1" max="1000" value="500" class="slider" id="speed_slider">
-                Acceleration: <label id="acceleration_label">200</label> <input type="range" min="1" max="1000" value="200" class="slider" id="acceleration_slider">
+                Steps: <label id="steps_label">600</label> <input type="range" min="1" max="4000" value="600" class="slider" id="steps_slider">
+                <label class="en">Speed: </label><label class="it">Velocità: </label><label id="speed_label">300</label> <input type="range" min="1" max="1000" value="300" class="slider" id="speed_slider">
+                <label class="en">Acceleration: </label><label class="it">Accelerazione: </label><label id="acceleration_label">300</label> <input type="range" min="1" max="1000" value="300" class="slider" id="acceleration_slider">
               </td>
             </tr>
           </tbody>
@@ -129,7 +129,7 @@
                       <input type="checkbox" id="display_center" name="display_center" onchange="main_image_drawing_handler()">
                     </td>
                     <td>
-                      <label for="display_center">Center</label>
+                      <label for="display_center" class="en">Center</label><label for="display_center" class="it">Centro assi</label>
                     </td>
                   </tr>
                   <tr>
@@ -137,7 +137,7 @@
                       <input type="checkbox" id="display_polar" name="display_polar" onchange="main_image_drawing_handler()">
                     </td>
                     <td>
-                      <label for="display_polar">Polar grid</label>
+                      <label for="display_polar" class="en">Polar grid</label><label for="display_polar" class="it">Griglia polare</label>
                     </td>
                   </tr>
                   <tr>
@@ -145,7 +145,7 @@
                       <input type="checkbox" id="display_gradient" name="display_gradient" onchange="main_image_drawing_handler()">
                     </td>
                     <td>
-                      <label for="display_gradient">Gradient threshold: </label><label id="gradient_label">0</label> <input type="range" min="0" max="90" value="0" class="slider" id="gradient_slider" oninput="main_image_drawing_handler()" disabled>
+                      <label for="display_gradient" class="en">Edge threshold: </label><label for="display_gradient" class="it">Soglia edge-detection: </label> <label id="gradient_label">0</label> <input type="range" min="0" max="90" value="0" class="slider" id="gradient_slider" oninput="main_image_drawing_handler()" disabled>
                     </td>
                   </tr>
                   <tr>
@@ -153,7 +153,7 @@
                       <input type="checkbox" id="display_sun_center" name="display_sun_center" onchange="main_image_drawing_handler(); loop_sun_center_animation();">
                     </td>
                     <td>
-                      <label for="display_sun_center">Sun approximation step: </label><label id="sun_center_label">0</label> <input type="range" min="0" max="511" value="0" class="slider" id="sun_center_slider" oninput="main_image_drawing_handler()" disabled>
+                      <label for="display_sun_center" class="en">Sun approximation step: </label><label for="display_sun_center" class="it">Step approssimazione: </label> <label id="sun_center_label">0</label> <input type="range" min="0" max="511" value="0" class="slider" id="sun_center_slider" oninput="main_image_drawing_handler()" disabled>
                       <label for="loop_sun_center_animation" id="sun_center_loop_span_label" class="disabled"> Loop:</label> <input type="checkbox" id="loop_sun_center_animation" name="loop_sun_center_animation" onchange="loop_sun_center_animation()" disabled> <input id="animation_loop_cycle" value="128" style="width: 50px;" disabled></input>
                     </td>
                   </tr>
@@ -161,7 +161,7 @@
                     <td>
                     </td>
                     <td>
-                      Azimut: <label id="azimut">0.0</label>° &nbsp;&nbsp;&nbsp; Angolo da Zenit: <label id="elevation">0.0</label>°
+                      Azimut: <label id="azimut">0.0</label>° <br> <label class="en">Zenit Angle</label><label class="it">Angolo da Zenit: </label><label id="elevation">0.0</label>°
                     </td>
                   </tr>
                 </table>

@@ -1,3 +1,26 @@
+:root {
+  --en-display: none;
+  --it-display: auto;
+  --motors-enable-display: none;
+  --motors-disable-display: auto;
+}
+
+.en {
+  display: var(--en-display);
+}
+
+.it {
+  display: var(--it-display);
+}
+
+.enable-motors {
+  display: var(--motors-enable-display);
+}
+
+.disable-motors {
+  display: var(--motors-disable-display);
+}
+
 .arrow {
   border: solid black;
   border-width: 0 18px 18px 0;

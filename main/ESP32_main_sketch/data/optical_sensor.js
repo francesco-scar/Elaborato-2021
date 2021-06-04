@@ -86,14 +86,12 @@ function toggle_loop () {
   if (loop) {
     loop = false;
     document.getElementById("frame_button").disabled = false;
-    document.getElementById("start_button").disabled = false;
     document.getElementById("loop_button").className = '';
     document.getElementById("loop_button").innerText = 'Loop';
     clearTimeout(last_timeout);
   } else {
     loop = true;
     document.getElementById("frame_button").disabled = true;
-    document.getElementById("start_button").disabled = true;
     document.getElementById("loop_button").className = 'button_red';
     document.getElementById("loop_button").innerText = 'Stop';
     call_ajax();
@@ -106,16 +104,12 @@ function toggle_demo() {
     running_demo = false;
     document.getElementById("frame_button").disabled = false;
     document.getElementById("loop_button").disabled = false;
-    document.getElementById("start_button").className = '';
-    document.getElementById("start_button").innerText = 'Start';
     clearTimeout(last_timeout);
     // TODO
   } else {
     running_demo = true;
     document.getElementById("frame_button").disabled = true;
     document.getElementById("loop_button").disabled = true;
-    document.getElementById("start_button").className = 'button_red';
-    document.getElementById("start_button").innerText = 'Stop';
 //    call_ajax();
     // TODO
   }

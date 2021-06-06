@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
-//#include <ESPmDNS.h>
+#include <ESPmDNS.h>
 #include "secrets.h"
 
 //#define DEFAULT_MATRIX_TEST
@@ -71,6 +71,8 @@ void setup() {
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+  mDNS("solar_cooker");
 
   server.on("/getImageMatrix", HTTP_GET, imageMatrixRequest);
   server.on("/moveStepper", HTTP_GET, moveStepperHandler);

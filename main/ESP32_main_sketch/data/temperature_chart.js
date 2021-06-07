@@ -187,13 +187,15 @@ function loop_demo_animation() {
   }
 }
 
-ajax('/getTemperature', (e) => {
-  temperature_chart(Number(e.responseText));
-  prg_temperature(temperature);
-});
+if (!block_ajax) {
+  ajax('/getTemperature', (e) => {
+    temperature_chart(Number(e.responseText));
+    prg_temperature(temperature);
+  });
+}
 
 setInterval(() => {
-  if (!loop_demo) {
+  if (!loop_demo && !block_ajax) {
     ajax('/getTemperature', (e) => {
       temperature_chart(Number(e.responseText));
     });

@@ -1,6 +1,20 @@
 let root = document.documentElement;
+let block_ajax = false;
+let lang = 'it';
 
+function getURLParameter(name) {    // Regex is magic: https://stackoverflow.com/questions/11582512/how-to-get-url-parameters-with-javascript
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+}
+      
 function ajax (url_request, callback) {
+  if (block_ajax) {
+    if (lang == 'it') {
+      alert('Questa funzionalità non è disponibile perché la pagina non è servita dal server ESP-32 (questa è solo una demo)');
+    } else {
+      alert('This functionality is not available because the page isn\'t served from the ESP-32 server (this is just a demo)');
+    }
+    return;
+  }
   if (window.XMLHttpRequest) {
     request = new XMLHttpRequest();
   } else if (window.ActiveXObject) {
@@ -86,4 +100,19 @@ function interpolateColors(value, points) {
   }
   
   return result;
+}
+
+
+if (getURLParameter('lang') == 'it') {
+  root.style.setProperty('--it-display', 'auto');
+  root.style.setProperty('--en-display', 'none');
+  lang = 'it';
+} else if (getURLParameter('lang') == 'en') {
+  root.style.setProperty('--en-display', 'auto');
+  root.style.setProperty('--it-display', 'none');
+  lang = 'en';
+}
+
+if (getURLParameter('demo') == '1') {
+  block_ajax = true;
 }

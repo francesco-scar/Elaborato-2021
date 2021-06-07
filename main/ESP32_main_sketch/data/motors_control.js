@@ -1,4 +1,4 @@
-let motors_enabled = true;
+let motors_enabled = false;
 
 document.getElementById('steps_slider').oninput = update_sliders;
 document.getElementById('speed_slider').oninput = update_sliders;

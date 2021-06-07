@@ -2,10 +2,11 @@
 #define MICROSTEPPING_RATIO 16.0
 #define STEPS_PER_TURN 360/ANGLE_PER_STEP*MICROSTEPPING_RATIO
 
-#define MAX_H_OFFSET 20000
+#define MAX_H_OFFSET 200
 #define MAX_V_OFFSET 20000
+#define DISABLE_OFFSET_LIMITS true
 
-bool disable_motor = false;
+bool disable_motor = true;
 long h_steps_offset = 0;
 long v_steps_offset = 0;
 
@@ -89,7 +90,7 @@ void moveStepperHandler () {
   }
 
   if (motion == "up" || motion == "down") {
-    if (abs(v_steps_offset + steps) >= MAX_V_OFFSET) {
+    if (abs(v_steps_offset + steps) >= MAX_V_OFFSET && !DISABLE_OFFSET_LIMITS) {
       if (steps > 0) {
         steps = MAX_V_OFFSET - v_steps_offset;
       } else if (steps < 0) {
@@ -99,7 +100,7 @@ void moveStepperHandler () {
     move_stepper(steps, speed, acceleration, DIR_V, STEP_V, ENABLE_V);
     v_steps_offset += steps;
   } else if (motion == "right" || motion == "left") {
-    if (abs(h_steps_offset + steps) >= MAX_H_OFFSET) {
+    if (abs(h_steps_offset + steps) >= MAX_H_OFFSET && !DISABLE_OFFSET_LIMITS) {
       if (steps > 0) {
         steps = MAX_H_OFFSET - h_steps_offset;
       } else if (steps < 0) {

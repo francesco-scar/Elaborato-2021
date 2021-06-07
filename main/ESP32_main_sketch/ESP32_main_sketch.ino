@@ -41,8 +41,10 @@ void setup() {
 
   digitalWrite(DIR_H, LOW);
   digitalWrite(STEP_H, LOW);
+  digitalWrite(ENABLE_H, HIGH);
   digitalWrite(DIR_V, LOW);
   digitalWrite(STEP_V, LOW);
+  digitalWrite(ENABLE_V, HIGH);
   Serial.begin(115200);
 
   SPIFFS.begin();

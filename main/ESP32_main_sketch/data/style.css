@@ -1,8 +1,8 @@
 :root {
   --en-display: none;
   --it-display: auto;
-  --motors-enable-display: none;
-  --motors-disable-display: auto;
+  --motors-enable-display: auto;
+  --motors-disable-display: none;
 }
 
 .en {

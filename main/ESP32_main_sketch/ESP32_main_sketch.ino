@@ -16,7 +16,7 @@
 
 #define DIR_H 33                // Direction pin for horiziontal motor
 #define STEP_H 32               // Step pin for horiziontal motor
-#define ENABLE_H 25             // Enable pin for horizzontal motor (active low)
+#define ENABLE_H 13             // Enable pin for horizzontal motor (active low)
 
 #define DIR_V 14                // Direction pin for vertical motor
 #define STEP_V 12               // Step pin for vertical motor
@@ -47,6 +47,7 @@ void setup() {
   digitalWrite(ENABLE_V, HIGH);
   Serial.begin(115200);
 
+
   SPIFFS.begin();
   {
     File root = SPIFFS.open("/");
@@ -73,6 +74,10 @@ void setup() {
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  
+  #ifndef DISABLE_LCD
+    init_display();
+  #endif
 
   mDNS("solar_cooker");
 
@@ -98,4 +103,8 @@ void setup() {
 void loop() {
   server.handleClient();
   delay(200);
+
+  #ifndef DISABLE_LCD
+    updateLCD();
+  #endif
 }

@@ -22,6 +22,10 @@
 #define STEP_V 12               // Step pin for vertical motor
 #define ENABLE_V 13             // Enable pin for vertical motor (active low)
 
+#define TIMER_RESET_BUTTON 18   // Button to reset presentation timer
+
+unsigned long timer_offset = 0;
+
 // Set web server port number to 80
 WebServer server(80);
 
@@ -38,6 +42,7 @@ void setup() {
   pinMode(DIR_V, OUTPUT);
   pinMode(STEP_V, OUTPUT);
   pinMode(ENABLE_V, OUTPUT);
+  pinMode(TIMER_RESET_BUTTON, INPUT_PULLUP);
 
   digitalWrite(DIR_H, LOW);
   digitalWrite(STEP_H, LOW);
@@ -119,4 +124,8 @@ void loop() {
   #ifndef DISABLE_LCD
     updateLCD();
   #endif
+
+  if (digitalRead(TIMER_RESET_BUTTON) == 0) {
+    timer_offset = millis();
+  }
 }

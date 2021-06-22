@@ -33,7 +33,7 @@ void print_IP_LCD() {
 }
 
 void updateLCD() {
-  unsigned long t = millis();
+  unsigned long t = millis() - timer_offset;
   
   lcd.setCursor(0, 1);
   

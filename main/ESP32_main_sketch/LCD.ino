@@ -17,6 +17,18 @@ void init_display() {
   lcd.init();                               // LCD initialization
   lcd.backlight();                          // Turn on backlight
   lcd.clear();
+}
+
+void clear_LCD() {
+  lcd.clear();
+}
+
+void print_LCD(String string) {
+  lcd.print(string);
+}
+
+void print_IP_LCD() {
+  lcd.clear();
   lcd.print(WiFi.localIP());
 }
 

@@ -47,6 +47,10 @@ void setup() {
   digitalWrite(ENABLE_V, HIGH);
   Serial.begin(115200);
 
+  #ifndef DISABLE_LCD
+    init_display();
+  #endif
+
 
   SPIFFS.begin();
   {
@@ -65,9 +69,17 @@ void setup() {
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+  uint8_t i = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+    #ifndef DISABLE_LCD
+      i++;
+      if (i%16 == 0) {
+        clear_LCD();
+      }
+      print_LCD(".");
+    #endif
   }
   // Print local IP address and start web server
   Serial.println("");
@@ -76,7 +88,7 @@ void setup() {
   Serial.println(WiFi.localIP());
   
   #ifndef DISABLE_LCD
-    init_display();
+    print_IP_LCD();
   #endif
 
   mDNS("solar_cooker");

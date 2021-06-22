@@ -24,7 +24,7 @@
 
 #define TIMER_RESET_BUTTON 18   // Button to reset presentation timer
 
-unsigned long timer_offset = 0;
+long int timer_offset = 0;
 
 // Set web server port number to 80
 WebServer server(80);
